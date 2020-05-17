@@ -198,228 +198,231 @@ const  SDFLAGS_WR                                =  0x0002;
 
 const  PREOPENTYPE_DIR                           =  0;
 
-export function args_get(argv_ptr : number, argv_buf_ptr : number) : number
+export interface Context {
+	memory : WebAssembly.Memory
+}
+
+export function args_get(this : Context, argv_ptr : number, argv_buf_ptr : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function args_sizes_get(argc_out : number, argv_buf_size_out : number) : number
+export function args_sizes_get(this : Context, argc_out : number, argv_buf_size_out : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function environ_get(environ_ptr : number, environ_buf_ptr : number) : number
+export function environ_get(this : Context, environ_ptr : number, environ_buf_ptr : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function environ_sizes_get(environc_out : number, environ_buf_size_out : number) : number
+export function environ_sizes_get(this : Context, environc_out : number, environ_buf_size_out : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function clock_res_get(id : number, resolution_out : number) : number
+export function clock_res_get(this : Context, id : number, resolution_out : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function clock_time_get(id : number, precision : number, time_out : number) : number
+export function clock_time_get(this : Context, id : number, precision : number, time_out : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function fd_advise(fd : number, offset : number, len : number, advice : number) : number
+export function fd_advise(this : Context, fd : number, offset : number, len : number, advice : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function fd_allocate(fd : number, offset : number, len : number) : number
+export function fd_allocate(this : Context, fd : number, offset : number, len : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function fd_close(fd : number) : number
+export function fd_close(this : Context, fd : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function fd_datasync(fd : number) : number
+export function fd_datasync(this : Context, fd : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function fd_fdstat_get(fd : number, stat_out : number) : number
+export function fd_fdstat_get(this : Context, fd : number, stat_out : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function fd_fdstat_set_flags(fd : number, flags : number) : number
+export function fd_fdstat_set_flags(this : Context, fd : number, flags : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function fd_fdstat_set_rights(fd : number, fs_rights_base : number | bigint, fs_rights_inheriting : number | bigint) : number
+export function fd_fdstat_set_rights(this : Context, fd : number, fs_rights_base : number | bigint, fs_rights_inheriting : number | bigint) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function fd_filestat_get(fd : number, buf_out : number) : number
+export function fd_filestat_get(this : Context, fd : number, buf_out : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function fd_filestat_set_size(fd : number, size : number) : number
+export function fd_filestat_set_size(this : Context, fd : number, size : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function fd_filestat_set_times(fd : number, atim : number, mtim : number, fst_flags : number) : number
+export function fd_filestat_set_times(this : Context, fd : number, atim : number, mtim : number, fst_flags : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function fd_pread(fd : number, iovs_ptr : number, iovs_len : number, offset : number, nread_out : number) : number
+export function fd_pread(this : Context, fd : number, iovs_ptr : number, iovs_len : number, offset : number, nread_out : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function fd_prestat_get(fd : number, buf_out : number) : number
+export function fd_prestat_get(this : Context, fd : number, buf_out : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function fd_prestat_dir_name(fd : number, path_ptr : number, path_len : number) : number
+export function fd_prestat_dir_name(this : Context, fd : number, path_ptr : number, path_len : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function fd_pwrite(fd : number, iovs_ptr : number, iovs_len : number, offset : number, nwritten_out : number) : number
+export function fd_pwrite(this : Context, fd : number, iovs_ptr : number, iovs_len : number, offset : number, nwritten_out : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function fd_read(fd : number, iovs_ptr : number, iovs_len : number, nread_out : number) : number
+export function fd_read(this : Context, fd : number, iovs_ptr : number, iovs_len : number, nread_out : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function fd_readdir(fd : number, buf_ptr : number, buf_len : number, cookie : number, bufused_out : number) : number
+export function fd_readdir(this : Context, fd : number, buf_ptr : number, buf_len : number, cookie : number, bufused_out : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function fd_renumber(fd : number, to : number) : number
+export function fd_renumber(this : Context, fd : number, to : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function fd_seek(fd : number, offset : number, whence : number, newoffset_out : number) : number
+export function fd_seek(this : Context, fd : number, offset : number, whence : number, newoffset_out : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function fd_sync(fd : number) : number
+export function fd_sync(this : Context, fd : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function fd_tell(fd : number, offset_out : number) : number
+export function fd_tell(this : Context, fd : number, offset_out : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function fd_write(fd : number, iovs_ptr : number, iovs_len : number, nwritten_out : number) : number
+export function fd_write(this : Context, fd : number, iovs_ptr : number, iovs_len : number, nwritten_out : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function path_create_directory(fd : number, path_ptr : number, path_len : number) : number
+export function path_create_directory(this : Context, fd : number, path_ptr : number, path_len : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function path_filestat_get(fd : number, flags : number, path_ptr : number, path_len : number, buf_out : number) : number
+export function path_filestat_get(this : Context, fd : number, flags : number, path_ptr : number, path_len : number, buf_out : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function path_filestat_set_times(fd : number, flags : number, path_ptr : number, path_len : number, atim : number, mtim : number, fst_flags : number) : number
+export function path_filestat_set_times(this : Context, fd : number, flags : number, path_ptr : number, path_len : number, atim : number, mtim : number, fst_flags : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function path_link(old_fd : number, old_flags : number, old_path_ptr : number, old_path_len : number, new_fd : number, new_path_ptr : number, new_path_len : number) : number
+export function path_link(this : Context, old_fd : number, old_flags : number, old_path_ptr : number, old_path_len : number, new_fd : number, new_path_ptr : number, new_path_len : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function path_open(fd : number, dirflags : number, path_ptr : number, path_len : number, oflags : number, fs_rights_base : number | bigint, fs_rights_inherting : number | bigint, fdflags : number, opened_fd_out : number) : number
+export function path_open(this : Context, fd : number, dirflags : number, path_ptr : number, path_len : number, oflags : number, fs_rights_base : number | bigint, fs_rights_inherting : number | bigint, fdflags : number, opened_fd_out : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function path_readlink(fd : number, path_ptr : number, path_len : number, buf_ptr : number, buf_len : number, bufused_out : number) : number
+export function path_readlink(this : Context, fd : number, path_ptr : number, path_len : number, buf_ptr : number, buf_len : number, bufused_out : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function path_remove_directory(fd : number, path_ptr : number, path_len : number) : number
+export function path_remove_directory(this : Context, fd : number, path_ptr : number, path_len : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function path_rename(fd : number, old_path_ptr : number, old_path_len : number, new_fd : number, new_path_ptr : number, new_path_len : number) : number
+export function path_rename(this : Context, fd : number, old_path_ptr : number, old_path_len : number, new_fd : number, new_path_ptr : number, new_path_len : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function path_symlink(old_path_ptr : number, old_path_len : number, fd : number, new_path_ptr : number, new_path_len : number) : number
+export function path_symlink(this : Context, old_path_ptr : number, old_path_len : number, fd : number, new_path_ptr : number, new_path_len : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function path_unlink_file(fd : number, path_ptr : number, path_len : number) : number
+export function path_unlink_file(this : Context, fd : number, path_ptr : number, path_len : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function poll_oneoff(in_ptr : number, out_ptr : number, nsubscriptions : number, nevents_out : number) : number
+export function poll_oneoff(this : Context, in_ptr : number, out_ptr : number, nsubscriptions : number, nevents_out : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function proc_exit(rval : number) : number
+export function proc_exit(this : Context, rval : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function proc_raise(sig : number) : number
+export function proc_raise(this : Context, sig : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function sched_yield() : number
+export function sched_yield(this : Context, ) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function random_get(buf_ptr : number, buf_len : number) : number
+export function random_get(this : Context, buf_ptr : number, buf_len : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function sock_recv(fd : number, ri_data_ptr : number, ri_data_len : number, ri_flags : number, ro_datalen_out : number, ro_flags_out : number) : number
+export function sock_recv(this : Context, fd : number, ri_data_ptr : number, ri_data_len : number, ri_flags : number, ro_datalen_out : number, ro_flags_out : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function sock_send(fd : number, si_data_ptr : number, si_data_len : number, si_flags : number, so_datalen_out : number) : number
+export function sock_send(this : Context, fd : number, si_data_ptr : number, si_data_len : number, si_flags : number, so_datalen_out : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function sock_shutdown(fd : number, how : number) : number
+export function sock_shutdown(this : Context, fd : number, how : number) : number
 {
 	return ERRNO_NOSYS;
 }
-
