@@ -272,14 +272,86 @@ export function environ_sizes_get(this : Context, environc_out : number, environ
 	return ERRNO_SUCCESS;
 }
 
+const clock_res_realtime = function() : bigint {
+	return BigInt(1e6);
+};
+
+const clock_res_monotonic = function() : bigint {
+	return BigInt(1e3);
+};
+
+const clock_res_process = clock_res_monotonic;
+const clock_res_thread = clock_res_monotonic;
+
+const clock_time_realtime = function() : bigint {
+	return BigInt(Date.now()) * BigInt(1e6);
+};
+
+const clock_time_monotonic = function() : bigint {
+	const t = performance.now();
+	const s = Math.trunc(t);
+	const ms = Math.floor((t - s) * 1e3);
+
+	return (BigInt(s) * BigInt(1e9)) + (BigInt(ms) * BigInt(1e6));
+};
+
+const clock_time_process = clock_time_monotonic;
+const clock_time_thread = clock_time_monotonic;
+
 export function clock_res_get(this : Context, id : number, resolution_out : number) : number
 {
-	return ERRNO_NOSYS;
+	const view = new DataView(this.memory.buffer);
+
+	switch (id) {
+		case CLOCKID_REALTIME:
+			view.setBigUint64(resolution_out, clock_res_realtime(), true);
+		break;
+
+		case CLOCKID_MONOTONIC:
+			view.setBigUint64(resolution_out, clock_res_monotonic(), true);
+		break;
+
+		case CLOCKID_PROCESS_CPUTIME_ID:
+			view.setBigUint64(resolution_out, clock_res_process(), true);
+		break;
+
+		case CLOCKID_THREAD_CPUTIME_ID:
+			view.setBigUint64(resolution_out, clock_res_thread(), true);
+		break;
+
+		default:
+			return ERRNO_INVAL;
+	}
+
+	return ERRNO_SUCCESS;
 }
 
 export function clock_time_get(this : Context, id : number, precision : number, time_out : number) : number
 {
-	return ERRNO_NOSYS;
+	const view = new DataView(this.memory.buffer);
+
+	switch (id) {
+		case CLOCKID_REALTIME:
+			view.setBigUint64(time_out, clock_time_realtime(), true);
+		break;
+
+		case CLOCKID_MONOTONIC:
+			view.setBigUint64(time_out, clock_time_monotonic(), true);
+		break;
+
+		case CLOCKID_PROCESS_CPUTIME_ID:
+			view.setBigUint64(time_out, clock_time_process(), true);
+		break;
+
+		case CLOCKID_THREAD_CPUTIME_ID:
+			view.setBigUint64(time_out, clock_time_thread(), true);
+		break;
+
+		default:
+			return ERRNO_INVAL;
+	}
+
+	return ERRNO_SUCCESS;
 }
 
 export function fd_advise(this : Context, fd : number, offset : number, len : number, advice : number) : number

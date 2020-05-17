@@ -1,5 +1,6 @@
 import {
 	assertEquals,
+	assertNotEquals,
 } from "https://deno.land/std/testing/asserts.ts";
 
 import {
@@ -193,4 +194,58 @@ Deno.test("environ_sizes_get", function() : void {
 	assertEquals(environ_sizes_get.call(context, 0, 4), 0);
 	assertEquals(view.getUint32(0, true), 3);
 	assertEquals(view.getUint32(4, true), 20);
+});
+
+Deno.test("clock_res_get", function() : void {
+	const context : Context = {
+		memory: new WebAssembly.Memory({ initial: 1 }),
+	};
+
+	const view = new DataView(context.memory.buffer);
+
+	assertEquals(clock_time_get.call(context, -1, 0, 8), 28);
+	assertEquals(clock_time_get.call(context, 4, 0, 8), 28);
+
+	assertEquals(clock_res_get.call(context, 0, 8), 0);
+	assertNotEquals(view.getBigUint64(8), 0);
+
+	assertEquals(clock_res_get.call(context, 1, 8), 0);
+	assertNotEquals(view.getBigUint64(8), 0);
+
+	assertEquals(clock_res_get.call(context, 2, 8), 0);
+	assertNotEquals(view.getBigUint64(8), 0);
+
+	assertEquals(clock_res_get.call(context, 3, 8), 0);
+	assertNotEquals(view.getBigUint64(8), 0);
+});
+
+Deno.test("clock_time_get", function() {
+	const context : Context = {
+		memory: new WebAssembly.Memory({ initial: 1 }),
+	};
+
+	const view = new DataView(context.memory.buffer);
+
+	assertEquals(clock_time_get.call(context, -1, 0, 8), 28);
+	assertEquals(clock_time_get.call(context, 4, 0, 8), 28);
+
+	assertEquals(clock_time_get.call(context, 0, 0, 8), 0);
+	assertNotEquals(view.getBigUint64(8, true), 0);
+	assertEquals(clock_time_get.call(context, 0, 1, 8), 0);
+	assertNotEquals(view.getBigUint64(8, true), 0);
+
+	assertEquals(clock_time_get.call(context, 1, 0, 8), 0);
+	assertNotEquals(view.getBigUint64(8, true), 0);
+	assertEquals(clock_time_get.call(context, 1, 1, 8), 0);
+	assertNotEquals(view.getBigUint64(8, true), 0);
+
+	assertEquals(clock_time_get.call(context, 2, 0, 8), 0);
+	assertNotEquals(view.getBigUint64(8, true), 0);
+	assertEquals(clock_time_get.call(context, 2, 1, 8), 0);
+	assertNotEquals(view.getBigUint64(8, true), 0);
+
+	assertEquals(clock_time_get.call(context, 3, 0, 8), 0);
+	assertNotEquals(view.getBigUint64(8, true), 0);
+	assertEquals(clock_time_get.call(context, 3, 1, 8), 0);
+	assertNotEquals(view.getBigUint64(8, true), 0);
 });
