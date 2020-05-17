@@ -122,3 +122,75 @@ Deno.test("args_sizes_get", function() : void {
 	assertEquals(view.getUint32(0, true), 3);
 	assertEquals(view.getUint32(4, true), 14);
 });
+
+Deno.test("environ_get", function() : void {
+	const context : Context = {
+		memory: new WebAssembly.Memory({ initial: 1 }),
+	};
+
+	const text = new TextDecoder();
+	const heap = new Uint8Array(context.memory.buffer);
+	const view = new DataView(context.memory.buffer);
+
+	assertEquals(environ_get.call(context, 0, 4), 0);
+	assertEquals(view.getUint32(0, true), 0);
+	assertEquals(view.getUint32(4, true), 0);
+
+	context.env = {};
+	assertEquals(environ_get.call(context, 0, 4), 0);
+	assertEquals(view.getUint32(0, true), 0);
+	assertEquals(view.getUint32(4, true), 0);
+
+	context.env = {"one": "1"};
+	assertEquals(environ_get.call(context, 0, 4), 0);
+	assertEquals(view.getUint32(0, true), 4);
+	assertEquals(text.decode(new Uint8Array(context.memory.buffer, 4, 6)), "one=1\0");
+
+	context.env = {"one": "1", "two": "2"};
+	assertEquals(environ_get.call(context, 0, 8), 0);
+	assertEquals(view.getUint32(0, true), 8);
+	assertEquals(view.getUint32(4, true), 14);
+	assertEquals(text.decode(new Uint8Array(context.memory.buffer, 8, 6)), "one=1\0");
+	assertEquals(text.decode(new Uint8Array(context.memory.buffer, 14, 6)), "two=2\0");
+
+	context.env = {"one": "1", "two": "2", "three": "3"};
+	assertEquals(environ_get.call(context, 0, 12), 0);
+	assertEquals(view.getUint32(0, true), 12);
+	assertEquals(view.getUint32(4, true), 18);
+	assertEquals(view.getUint32(8, true), 24);
+	assertEquals(text.decode(new Uint8Array(context.memory.buffer, 12, 6)), "one=1\0");
+	assertEquals(text.decode(new Uint8Array(context.memory.buffer, 18, 6)), "two=2\0");
+	assertEquals(text.decode(new Uint8Array(context.memory.buffer, 24, 8)), "three=3\0");
+});
+
+Deno.test("environ_sizes_get", function() : void {
+	const context : Context = {
+		memory: new WebAssembly.Memory({ initial: 1 }),
+	};
+
+	const view = new DataView(context.memory.buffer);
+
+	assertEquals(environ_sizes_get.call(context, 0, 4), 0);
+	assertEquals(view.getUint32(0, true), 0);
+	assertEquals(view.getUint32(0, true), 0);
+
+	context.env = {};
+	assertEquals(environ_sizes_get.call(context, 0, 4), 0);
+	assertEquals(view.getUint32(0, true), 0);
+	assertEquals(view.getUint32(0, true), 0);
+
+	context.env = {"one": "1"};
+	assertEquals(environ_sizes_get.call(context, 0, 4), 0);
+	assertEquals(view.getUint32(0, true), 1);
+	assertEquals(view.getUint32(4, true), 6);
+
+	context.env = {"one": "1", "two": "2"};
+	assertEquals(environ_sizes_get.call(context, 0, 4), 0);
+	assertEquals(view.getUint32(0, true), 2);
+	assertEquals(view.getUint32(4, true), 12);
+
+	context.env = {"one": "1", "two": "2", "three": "3"};
+	assertEquals(environ_sizes_get.call(context, 0, 4), 0);
+	assertEquals(view.getUint32(0, true), 3);
+	assertEquals(view.getUint32(4, true), 20);
+});
