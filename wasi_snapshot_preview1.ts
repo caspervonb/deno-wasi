@@ -198,18 +198,43 @@ const  SDFLAGS_WR                                =  0x0002;
 
 const  PREOPENTYPE_DIR                           =  0;
 
-export interface Context {
-	memory : WebAssembly.Memory
+export type Args = string[];
+export type Context = {
+	args? : Args;
+	memory : WebAssembly.Memory;
 }
 
 export function args_get(this : Context, argv_ptr : number, argv_buf_ptr : number) : number
 {
-	return ERRNO_NOSYS;
+	const args = this.args ? this.args : [];
+	const text = new TextEncoder();
+	const heap = new Uint8Array(this.memory.buffer);
+	const view = new DataView(this.memory.buffer);
+
+	for (let arg of args) {
+		view.setUint32(argv_ptr, argv_buf_ptr, true);
+		argv_ptr += 4;
+
+		const data = text.encode(`${arg}\0`);
+		heap.set(data, argv_buf_ptr);
+		argv_buf_ptr += data.length;
+	}
+
+	return ERRNO_SUCCESS;
 }
 
 export function args_sizes_get(this : Context, argc_out : number, argv_buf_size_out : number) : number
 {
-	return ERRNO_NOSYS;
+	const args = this.args ? this.args : [];
+	const text = new TextEncoder();
+	const view = new DataView(this.memory.buffer);
+
+	view.setUint32(argc_out, args.length, true);
+	view.setUint32(argv_buf_size_out, args.reduce(function(acc, arg) {
+		return acc + text.encode(`${arg}\0`).length;
+	}, 0), true);
+
+	return ERRNO_SUCCESS;
 }
 
 export function environ_get(this : Context, environ_ptr : number, environ_buf_ptr : number) : number
