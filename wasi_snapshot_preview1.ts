@@ -199,8 +199,10 @@ const  SDFLAGS_WR                                =  0x0002;
 const  PREOPENTYPE_DIR                           =  0;
 
 export type Args = string[];
+export type Env = { [key: string]: string | undefined };
 export type Context = {
 	args? : Args;
+	env? : Env;
 	memory : WebAssembly.Memory;
 }
 
@@ -239,12 +241,35 @@ export function args_sizes_get(this : Context, argc_out : number, argv_buf_size_
 
 export function environ_get(this : Context, environ_ptr : number, environ_buf_ptr : number) : number
 {
-	return ERRNO_NOSYS;
+	const entries = Object.entries(this.env ? this.env : []);
+	const text = new TextEncoder();
+	const heap = new Uint8Array(this.memory.buffer);
+	const view = new DataView(this.memory.buffer);
+
+	for (let [key, value] of entries) {
+		view.setUint32(environ_ptr, environ_buf_ptr, true);
+		environ_ptr += 4;
+
+		const data = text.encode(`${key}=${value}\0`);
+		heap.set(data, environ_buf_ptr);
+		environ_buf_ptr += data.length;
+	}
+
+	return ERRNO_SUCCESS;
 }
 
 export function environ_sizes_get(this : Context, environc_out : number, environ_buf_size_out : number) : number
 {
-	return ERRNO_NOSYS;
+	const entries = Object.entries(this.env ? this.env : []);
+	const text = new TextEncoder();
+	const view = new DataView(this.memory.buffer);
+
+	view.setUint32(environc_out, entries.length, true);
+	view.setUint32(environ_buf_size_out, entries.reduce(function(acc, [key, value]) {
+		return acc + text.encode(`${key}=${value}\0`).length;
+	}, 0), true);
+
+	return ERRNO_SUCCESS;
 }
 
 export function clock_res_get(this : Context, id : number, resolution_out : number) : number
