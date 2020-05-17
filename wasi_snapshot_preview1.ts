@@ -198,227 +198,227 @@ const  SDFLAGS_WR                                =  0x0002;
 
 const  PREOPENTYPE_DIR                           =  0;
 
-export function args_get(argv_ptr, argv_buf_ptr)
+export function args_get(argv_ptr : number, argv_buf_ptr : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function args_sizes_get(argc_out, argv_buf_size_out)
+export function args_sizes_get(argc_out : number, argv_buf_size_out : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function environ_get(environ_ptr, environ_buf_ptr)
+export function environ_get(environ_ptr : number, environ_buf_ptr : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function environ_sizes_get(environc_out, environ_buf_size_out)
+export function environ_sizes_get(environc_out : number, environ_buf_size_out : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function clock_res_get(id, resolution_out)
+export function clock_res_get(id : number, resolution_out : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function clock_time_get(id, precision, time_out)
+export function clock_time_get(id : number, precision : number, time_out : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function fd_advise(fd, offset, len, advice)
+export function fd_advise(fd : number, offset : number, len : number, advice : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function fd_allocate(fd, offset, len)
+export function fd_allocate(fd : number, offset : number, len : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function fd_close(fd)
+export function fd_close(fd : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function fd_datasync(fd)
+export function fd_datasync(fd : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function fd_fdstat_get(fd, stat_out)
+export function fd_fdstat_get(fd : number, stat_out : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function fd_fdstat_set_flags(fd, flags)
+export function fd_fdstat_set_flags(fd : number, flags : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function fd_fdstat_set_rights(fd, fs_rights_base, fs_rights_inheriting)
+export function fd_fdstat_set_rights(fd : number, fs_rights_base : number | bigint, fs_rights_inheriting : number | bigint) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function fd_filestat_get(fd, buf_out)
+export function fd_filestat_get(fd : number, buf_out : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function fd_filestat_set_size(fd, size)
+export function fd_filestat_set_size(fd : number, size : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function fd_filestat_set_times(fd, atim, mtim, fst_flags)
+export function fd_filestat_set_times(fd : number, atim : number, mtim : number, fst_flags : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function fd_pread(fd, iovs_ptr, iovs_len, offset, nread_out)
+export function fd_pread(fd : number, iovs_ptr : number, iovs_len : number, offset : number, nread_out : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function fd_prestat_get(fd, buf_out)
+export function fd_prestat_get(fd : number, buf_out : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function fd_prestat_dir_name(fd, path_ptr, path_len)
+export function fd_prestat_dir_name(fd : number, path_ptr : number, path_len : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function fd_pwrite(fd, iovs_ptr, iovs_len, offset, nwritten_out)
+export function fd_pwrite(fd : number, iovs_ptr : number, iovs_len : number, offset : number, nwritten_out : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function fd_read(fd, iovs_ptr, iovs_len, nread_out)
+export function fd_read(fd : number, iovs_ptr : number, iovs_len : number, nread_out : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function fd_readdir(fd, buf_ptr, buf_len, cookie, bufused_out)
+export function fd_readdir(fd : number, buf_ptr : number, buf_len : number, cookie : number, bufused_out : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function fd_renumber(fd, to)
+export function fd_renumber(fd : number, to : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function fd_seek(fd, offset, whence, newoffset_out)
+export function fd_seek(fd : number, offset : number, whence : number, newoffset_out : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function fd_sync(fd)
+export function fd_sync(fd : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function fd_tell(fd, offset_out)
+export function fd_tell(fd : number, offset_out : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function fd_write(fd, iovs_ptr, iovs_len, nwritten_out)
+export function fd_write(fd : number, iovs_ptr : number, iovs_len : number, nwritten_out : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function path_create_directory(fd, path_ptr, path_len)
+export function path_create_directory(fd : number, path_ptr : number, path_len : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function path_filestat_get(fd, flags, path_ptr, path_len, buf_out)
+export function path_filestat_get(fd : number, flags : number, path_ptr : number, path_len : number, buf_out : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function path_filestat_set_times(fd, flags, path_ptr, path_len, atim, mtim, fst_flags)
+export function path_filestat_set_times(fd : number, flags : number, path_ptr : number, path_len : number, atim : number, mtim : number, fst_flags : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function path_link(old_fd, old_flags, old_path_ptr, old_path_len, new_fd, new_path_ptr, new_path_len)
+export function path_link(old_fd : number, old_flags : number, old_path_ptr : number, old_path_len : number, new_fd : number, new_path_ptr : number, new_path_len : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function path_open(fd, dirflags, path_ptr, path_len, oflags, fs_rights_base, fs_rights_inherting, fdflags, opened_fd_out)
+export function path_open(fd : number, dirflags : number, path_ptr : number, path_len : number, oflags : number, fs_rights_base : number | bigint, fs_rights_inherting : number | bigint, fdflags : number, opened_fd_out : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function path_readlink(fd, path_ptr, path_len, buf_ptr, buf_len, bufused_out)
+export function path_readlink(fd : number, path_ptr : number, path_len : number, buf_ptr : number, buf_len : number, bufused_out : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function path_remove_directory(fd, path_ptr, path_len)
+export function path_remove_directory(fd : number, path_ptr : number, path_len : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function path_rename(fd, old_path_ptr, old_path_len, new_fd, new_path_ptr, new_path_len)
+export function path_rename(fd : number, old_path_ptr : number, old_path_len : number, new_fd : number, new_path_ptr : number, new_path_len : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function path_symlink(old_path_ptr, old_path_len, fd, new_path_ptr, new_path_len)
+export function path_symlink(old_path_ptr : number, old_path_len : number, fd : number, new_path_ptr : number, new_path_len : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function path_unlink_file(fd, path_ptr, path_len)
+export function path_unlink_file(fd : number, path_ptr : number, path_len : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function poll_oneoff(in_ptr, out_ptr, nsubscriptions, nevents_out)
+export function poll_oneoff(in_ptr : number, out_ptr : number, nsubscriptions : number, nevents_out : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function proc_exit(rval)
+export function proc_exit(rval : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function proc_raise(sig)
+export function proc_raise(sig : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function sched_yield()
+export function sched_yield() : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function random_get(buf_ptr, buf_len)
+export function random_get(buf_ptr : number, buf_len : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function sock_recv(fd, ri_data_ptr, ri_data_len, ri_flags, ro_datalen_out, ro_flags_out)
+export function sock_recv(fd : number, ri_data_ptr : number, ri_data_len : number, ri_flags : number, ro_datalen_out : number, ro_flags_out : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function sock_send(fd, si_data_ptr, si_data_len, si_flags, so_datalen_out)
+export function sock_send(fd : number, si_data_ptr : number, si_data_len : number, si_flags : number, so_datalen_out : number) : number
 {
 	return ERRNO_NOSYS;
 }
 
-export function sock_shutdown(fd, how)
+export function sock_shutdown(fd : number, how : number) : number
 {
 	return ERRNO_NOSYS;
 }
