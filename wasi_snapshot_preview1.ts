@@ -200,10 +200,9 @@ const  SDFLAGS_WR                                =  0x0002;
 
 const  PREOPENTYPE_DIR                           =  0;
 
-export type Env = { [key: string]: string | undefined };
 export type Context = {
 	args? : string[];
-	env? : Env;
+	env? : { [key: string]: string | undefined };
 	memory : WebAssembly.Memory;
 }
 
