@@ -250,6 +250,24 @@ Deno.test("clock_time_get", function() {
 	assertNotEquals(view.getBigUint64(8, true), 0);
 });
 
+Deno.test("proc_exit", async function() {
+	const script = `
+		import { proc_exit } from "./wasi_snapshot_preview1.ts";
+		const context = {
+			memory: new WebAssembly.Memory({ initial: 1 }),
+		};
+
+		proc_exit.call(context, 1);
+	`;
+
+	const process = await Deno.run({ cmd: ["deno", "eval", script] });
+	const status = await process.status();
+	assertEquals(status.success, false);
+	assertEquals(status.code, 1);
+
+	process.close();
+});
+
 Deno.test("random_get", function() {
 	const context : Context = {
 		memory: new WebAssembly.Memory({ initial: 1 }),

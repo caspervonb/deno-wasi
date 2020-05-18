@@ -514,9 +514,9 @@ export function poll_oneoff(this : Context, in_ptr : number, out_ptr : number, n
 	return ERRNO_NOSYS;
 }
 
-export function proc_exit(this : Context, rval : number) : number
+export function proc_exit(this : Context, rval : number) : never
 {
-	return ERRNO_NOSYS;
+	Deno.exit(rval);
 }
 
 export function proc_raise(this : Context, sig : number) : number
