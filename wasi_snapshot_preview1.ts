@@ -531,7 +531,10 @@ export function sched_yield(this : Context, ) : number
 
 export function random_get(this : Context, buf_ptr : number, buf_len : number) : number
 {
-	return ERRNO_NOSYS;
+	const buffer = new Uint8Array(this.memory.buffer, buf_ptr, buf_len);
+	crypto.getRandomValues(buffer);
+
+	return ERRNO_SUCCESS;
 }
 
 export function sock_recv(this : Context, fd : number, ri_data_ptr : number, ri_data_len : number, ri_flags : number, ro_datalen_out : number, ro_flags_out : number) : number

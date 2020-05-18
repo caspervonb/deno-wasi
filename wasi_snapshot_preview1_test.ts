@@ -249,3 +249,24 @@ Deno.test("clock_time_get", function() {
 	assertEquals(clock_time_get.call(context, 3, 1, 8), 0);
 	assertNotEquals(view.getBigUint64(8, true), 0);
 });
+
+Deno.test("random_get", function() {
+	const context : Context = {
+		memory: new WebAssembly.Memory({ initial: 1 }),
+	};
+
+	const heap = new Uint8Array(context.memory.buffer);
+
+	assertEquals(random_get.call(context, 0, 0), 0);
+	assertEquals(random_get.call(context, 0, 1), 0);
+	assertEquals(random_get.call(context, 0, 2), 0);
+	assertEquals(random_get.call(context, 0, 4), 0);
+	assertEquals(random_get.call(context, 0, 8), 0);
+	assertEquals(random_get.call(context, 0, 16), 0);
+	assertEquals(random_get.call(context, 0, 32), 0);
+	assertEquals(random_get.call(context, 0, 64), 0);
+	assertEquals(random_get.call(context, 0, 128), 0);
+	assertEquals(random_get.call(context, 0, 256), 0);
+	assertEquals(random_get.call(context, 0, 512), 0);
+	assertEquals(random_get.call(context, 0, 1024), 0);
+});
