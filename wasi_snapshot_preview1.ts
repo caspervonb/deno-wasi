@@ -1,7 +1,9 @@
-const  CLOCKID_REALTIME                          =  0;
-const  CLOCKID_MONOTONIC                         =  1;
-const  CLOCKID_PROCESS_CPUTIME_ID                =  2;
-const  CLOCKID_THREAD_CPUTIME_ID                 =  3;
+export const enum Clock {
+	Realtime   =  0,
+	Monotonic  =  1,
+	Process    =  2,
+	Thread     =  3,
+};
 
 const  ERRNO_SUCCESS                             =  0;
 const  ERRNO_2BIG                                =  1;
@@ -298,24 +300,24 @@ const clock_time_monotonic = function() : bigint {
 const clock_time_process = clock_time_monotonic;
 const clock_time_thread = clock_time_monotonic;
 
-export function clock_res_get(this : Context, id : number, resolution_out : number) : number
+export function clock_res_get(this : Context, clock : Clock, resolution_out : number) : number
 {
 	const view = new DataView(this.memory.buffer);
 
-	switch (id) {
-		case CLOCKID_REALTIME:
+	switch (clock) {
+		case Clock.Realtime:
 			view.setBigUint64(resolution_out, clock_res_realtime(), true);
 		break;
 
-		case CLOCKID_MONOTONIC:
+		case Clock.Monotonic:
 			view.setBigUint64(resolution_out, clock_res_monotonic(), true);
 		break;
 
-		case CLOCKID_PROCESS_CPUTIME_ID:
+		case Clock.Process:
 			view.setBigUint64(resolution_out, clock_res_process(), true);
 		break;
 
-		case CLOCKID_THREAD_CPUTIME_ID:
+		case Clock.Thread:
 			view.setBigUint64(resolution_out, clock_res_thread(), true);
 		break;
 
@@ -326,24 +328,24 @@ export function clock_res_get(this : Context, id : number, resolution_out : numb
 	return ERRNO_SUCCESS;
 }
 
-export function clock_time_get(this : Context, id : number, precision : number, time_out : number) : number
+export function clock_time_get(this : Context, clock : Clock, precision : number, time_out : number) : number
 {
 	const view = new DataView(this.memory.buffer);
 
-	switch (id) {
-		case CLOCKID_REALTIME:
+	switch (clock) {
+		case Clock.Realtime:
 			view.setBigUint64(time_out, clock_time_realtime(), true);
 		break;
 
-		case CLOCKID_MONOTONIC:
+		case Clock.Monotonic:
 			view.setBigUint64(time_out, clock_time_monotonic(), true);
 		break;
 
-		case CLOCKID_PROCESS_CPUTIME_ID:
+		case Clock.Process:
 			view.setBigUint64(time_out, clock_time_process(), true);
 		break;
 
-		case CLOCKID_THREAD_CPUTIME_ID:
+		case Clock.Thread:
 			view.setBigUint64(time_out, clock_time_thread(), true);
 		break;
 
