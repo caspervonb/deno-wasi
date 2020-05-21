@@ -204,8 +204,8 @@ Deno.test("clock_res_get", function() : void {
 
 	const view = new DataView(context.memory.buffer);
 
-	assertEquals(clock_time_get.call(context, -1, 0, 8), 28);
-	assertEquals(clock_time_get.call(context, 4, 0, 8), 28);
+	assertEquals(clock_res_get.call(context, -1, 8), 28);
+	assertEquals(clock_res_get.call(context, 4, 8), 28);
 
 	assertEquals(clock_res_get.call(context, Clock.Realtime, 8), 0);
 	assertNotEquals(view.getBigUint64(8), 0);
