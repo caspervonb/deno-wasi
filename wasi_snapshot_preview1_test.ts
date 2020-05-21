@@ -51,7 +51,7 @@ import {
 	sock_recv,
 	sock_send,
 	sock_shutdown,
-} from "./wasi_snapshot_preview1.ts";
+} from "./mod.ts";
 
 Deno.test("args_get", function() : void {
 	const context : Context = {
