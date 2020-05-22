@@ -236,6 +236,18 @@ export class Module {
 
 	memory : WebAssembly.Memory;
 
+	descriptors : any = [
+		{
+			handle: Deno.stdin,
+		},
+		{
+			handle: Deno.stdout,
+		},
+		{
+			handle: Deno.stderr,
+		},
+	];
+
 	exports = {
 		args_get: (argv_ptr : number, argv_buf_ptr : number) : number => {
 			const args = this.args ? this.args : [];
