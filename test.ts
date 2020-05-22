@@ -5,260 +5,216 @@ import {
 
 import {
 	Clock,
-	Context,
-	args_get,
-	args_sizes_get,
-	environ_get,
-	environ_sizes_get,
-	clock_res_get,
-	clock_time_get,
-	fd_advise,
-	fd_allocate,
-	fd_close,
-	fd_datasync,
-	fd_fdstat_get,
-	fd_fdstat_set_flags,
-	fd_fdstat_set_rights,
-	fd_filestat_get,
-	fd_filestat_set_size,
-	fd_filestat_set_times,
-	fd_pread,
-	fd_prestat_get,
-	fd_prestat_dir_name,
-	fd_pwrite,
-	fd_read,
-	fd_readdir,
-	fd_renumber,
-	fd_seek,
-	fd_sync,
-	fd_tell,
-	fd_write,
-	path_create_directory,
-	path_filestat_get,
-	path_filestat_set_times,
-	path_link,
-	path_open,
-	path_readlink,
-	path_remove_directory,
-	path_rename,
-	path_symlink,
-	path_unlink_file,
-	poll_oneoff,
-	proc_exit,
-	proc_raise,
-	sched_yield,
-	random_get,
-	sock_recv,
-	sock_send,
-	sock_shutdown,
+	Module,
 } from "./mod.ts";
 
 Deno.test("args_get", function() : void {
-	const context : Context = {
+	const module = new Module({
 		memory: new WebAssembly.Memory({ initial: 1 }),
-	};
+	});
 
 	const text = new TextDecoder();
-	const heap = new Uint8Array(context.memory.buffer);
-	const view = new DataView(context.memory.buffer);
+	const heap = new Uint8Array(module.memory.buffer);
+	const view = new DataView(module.memory.buffer);
 
-	assertEquals(args_get.call(context, 0, 4), 0);
+	assertEquals(module.exports.args_get(0, 4), 0);
 	assertEquals(view.getUint32(0, true), 0);
 	assertEquals(view.getUint32(4, true), 0);
 
-	context.args = [];
-	assertEquals(args_get.call(context, 0, 4), 0);
+	module.args = [];
+	assertEquals(module.exports.args_get(0, 4), 0);
 	assertEquals(view.getUint32(0, true), 0);
 	assertEquals(view.getUint32(4, true), 0);
 
-	context.args = ["one"];
-	assertEquals(args_get.call(context, 0, 4), 0);
+	module.args = ["one"];
+	assertEquals(module.exports.args_get(0, 4), 0);
 	assertEquals(view.getUint32(0, true), 4);
-	assertEquals(text.decode(new Uint8Array(context.memory.buffer, 4, 4)), "one\0");
+	assertEquals(text.decode(new Uint8Array(module.memory.buffer, 4, 4)), "one\0");
 
-	context.args = ["one", "two"];
-	assertEquals(args_get.call(context, 0, 8), 0);
+	module.args = ["one", "two"];
+	assertEquals(module.exports.args_get(0, 8), 0);
 	assertEquals(view.getUint32(0, true), 8);
 	assertEquals(view.getUint32(4, true), 12);
-	assertEquals(text.decode(new Uint8Array(context.memory.buffer, 8, 4)), "one\0");
-	assertEquals(text.decode(new Uint8Array(context.memory.buffer, 12, 4)), "two\0");
+	assertEquals(text.decode(new Uint8Array(module.memory.buffer, 8, 4)), "one\0");
+	assertEquals(text.decode(new Uint8Array(module.memory.buffer, 12, 4)), "two\0");
 
-	context.args = ["one", "two", "three"];
-	assertEquals(args_get.call(context, 0, 12), 0);
+	module.args = ["one", "two", "three"];
+	assertEquals(module.exports.args_get(0, 12), 0);
 	assertEquals(view.getUint32(0, true), 12);
 	assertEquals(view.getUint32(4, true), 16);
 	assertEquals(view.getUint32(8, true), 20);
-	assertEquals(text.decode(new Uint8Array(context.memory.buffer, 12, 4)), "one\0");
-	assertEquals(text.decode(new Uint8Array(context.memory.buffer, 16, 4)), "two\0");
-	assertEquals(text.decode(new Uint8Array(context.memory.buffer, 20, 6)), "three\0");
+	assertEquals(text.decode(new Uint8Array(module.memory.buffer, 12, 4)), "one\0");
+	assertEquals(text.decode(new Uint8Array(module.memory.buffer, 16, 4)), "two\0");
+	assertEquals(text.decode(new Uint8Array(module.memory.buffer, 20, 6)), "three\0");
 });
 
 Deno.test("args_sizes_get", function() : void {
-	const context : Context = {
+	const module = new Module({
 		memory: new WebAssembly.Memory({ initial: 1 }),
-	};
+	});
 
-	const view = new DataView(context.memory.buffer);
+	const view = new DataView(module.memory.buffer);
 
-	assertEquals(args_sizes_get.call(context, 0, 4), 0);
+	assertEquals(module.exports.args_sizes_get(0, 4), 0);
 	assertEquals(view.getUint32(0, true), 0);
 	assertEquals(view.getUint32(0, true), 0);
 
-	context.args = [];
-	assertEquals(args_sizes_get.call(context, 0, 4), 0);
+	module.args = [];
+	assertEquals(module.exports.args_sizes_get(0, 4), 0);
 	assertEquals(view.getUint32(0, true), 0);
 	assertEquals(view.getUint32(0, true), 0);
 
-	context.args = ["one"];
-	assertEquals(args_sizes_get.call(context, 0, 4), 0);
+	module.args = ["one"];
+	assertEquals(module.exports.args_sizes_get(0, 4), 0);
 	assertEquals(view.getUint32(0, true), 1);
 	assertEquals(view.getUint32(4, true), 4);
 
-	context.args = ["one", "two"];
-	assertEquals(args_sizes_get.call(context, 0, 4), 0);
+	module.args = ["one", "two"];
+	assertEquals(module.exports.args_sizes_get(0, 4), 0);
 	assertEquals(view.getUint32(0, true), 2);
 	assertEquals(view.getUint32(4, true), 8);
 
-	context.args = ["one", "two", "three"];
-	assertEquals(args_sizes_get.call(context, 0, 4), 0);
+	module.args = ["one", "two", "three"];
+	assertEquals(module.exports.args_sizes_get(0, 4), 0);
 	assertEquals(view.getUint32(0, true), 3);
 	assertEquals(view.getUint32(4, true), 14);
 });
 
 Deno.test("environ_get", function() : void {
-	const context : Context = {
+	const module = new Module({
 		memory: new WebAssembly.Memory({ initial: 1 }),
-	};
+	});
 
 	const text = new TextDecoder();
-	const heap = new Uint8Array(context.memory.buffer);
-	const view = new DataView(context.memory.buffer);
+	const heap = new Uint8Array(module.memory.buffer);
+	const view = new DataView(module.memory.buffer);
 
-	assertEquals(environ_get.call(context, 0, 4), 0);
+	assertEquals(module.exports.environ_get(0, 4), 0);
 	assertEquals(view.getUint32(0, true), 0);
 	assertEquals(view.getUint32(4, true), 0);
 
-	context.env = {};
-	assertEquals(environ_get.call(context, 0, 4), 0);
+	module.env = {};
+	assertEquals(module.exports.environ_get(0, 4), 0);
 	assertEquals(view.getUint32(0, true), 0);
 	assertEquals(view.getUint32(4, true), 0);
 
-	context.env = {"one": "1"};
-	assertEquals(environ_get.call(context, 0, 4), 0);
+	module.env = {"one": "1"};
+	assertEquals(module.exports.environ_get(0, 4), 0);
 	assertEquals(view.getUint32(0, true), 4);
-	assertEquals(text.decode(new Uint8Array(context.memory.buffer, 4, 6)), "one=1\0");
+	assertEquals(text.decode(new Uint8Array(module.memory.buffer, 4, 6)), "one=1\0");
 
-	context.env = {"one": "1", "two": "2"};
-	assertEquals(environ_get.call(context, 0, 8), 0);
+	module.env = {"one": "1", "two": "2"};
+	assertEquals(module.exports.environ_get(0, 8), 0);
 	assertEquals(view.getUint32(0, true), 8);
 	assertEquals(view.getUint32(4, true), 14);
-	assertEquals(text.decode(new Uint8Array(context.memory.buffer, 8, 6)), "one=1\0");
-	assertEquals(text.decode(new Uint8Array(context.memory.buffer, 14, 6)), "two=2\0");
+	assertEquals(text.decode(new Uint8Array(module.memory.buffer, 8, 6)), "one=1\0");
+	assertEquals(text.decode(new Uint8Array(module.memory.buffer, 14, 6)), "two=2\0");
 
-	context.env = {"one": "1", "two": "2", "three": "3"};
-	assertEquals(environ_get.call(context, 0, 12), 0);
+	module.env = {"one": "1", "two": "2", "three": "3"};
+	assertEquals(module.exports.environ_get(0, 12), 0);
 	assertEquals(view.getUint32(0, true), 12);
 	assertEquals(view.getUint32(4, true), 18);
 	assertEquals(view.getUint32(8, true), 24);
-	assertEquals(text.decode(new Uint8Array(context.memory.buffer, 12, 6)), "one=1\0");
-	assertEquals(text.decode(new Uint8Array(context.memory.buffer, 18, 6)), "two=2\0");
-	assertEquals(text.decode(new Uint8Array(context.memory.buffer, 24, 8)), "three=3\0");
+	assertEquals(text.decode(new Uint8Array(module.memory.buffer, 12, 6)), "one=1\0");
+	assertEquals(text.decode(new Uint8Array(module.memory.buffer, 18, 6)), "two=2\0");
+	assertEquals(text.decode(new Uint8Array(module.memory.buffer, 24, 8)), "three=3\0");
 });
 
 Deno.test("environ_sizes_get", function() : void {
-	const context : Context = {
+	const module = new Module({
 		memory: new WebAssembly.Memory({ initial: 1 }),
-	};
+	});
 
-	const view = new DataView(context.memory.buffer);
+	const view = new DataView(module.memory.buffer);
 
-	assertEquals(environ_sizes_get.call(context, 0, 4), 0);
+	assertEquals(module.exports.environ_sizes_get(0, 4), 0);
 	assertEquals(view.getUint32(0, true), 0);
 	assertEquals(view.getUint32(0, true), 0);
 
-	context.env = {};
-	assertEquals(environ_sizes_get.call(context, 0, 4), 0);
+	module.env = {};
+	assertEquals(module.exports.environ_sizes_get(0, 4), 0);
 	assertEquals(view.getUint32(0, true), 0);
 	assertEquals(view.getUint32(0, true), 0);
 
-	context.env = {"one": "1"};
-	assertEquals(environ_sizes_get.call(context, 0, 4), 0);
+	module.env = {"one": "1"};
+	assertEquals(module.exports.environ_sizes_get(0, 4), 0);
 	assertEquals(view.getUint32(0, true), 1);
 	assertEquals(view.getUint32(4, true), 6);
 
-	context.env = {"one": "1", "two": "2"};
-	assertEquals(environ_sizes_get.call(context, 0, 4), 0);
+	module.env = {"one": "1", "two": "2"};
+	assertEquals(module.exports.environ_sizes_get(0, 4), 0);
 	assertEquals(view.getUint32(0, true), 2);
 	assertEquals(view.getUint32(4, true), 12);
 
-	context.env = {"one": "1", "two": "2", "three": "3"};
-	assertEquals(environ_sizes_get.call(context, 0, 4), 0);
+	module.env = {"one": "1", "two": "2", "three": "3"};
+	assertEquals(module.exports.environ_sizes_get(0, 4), 0);
 	assertEquals(view.getUint32(0, true), 3);
 	assertEquals(view.getUint32(4, true), 20);
 });
 
 Deno.test("clock_res_get", function() : void {
-	const context : Context = {
+	const module = new Module({
 		memory: new WebAssembly.Memory({ initial: 1 }),
-	};
+	});
 
-	const view = new DataView(context.memory.buffer);
+	const view = new DataView(module.memory.buffer);
 
-	assertEquals(clock_res_get.call(context, -1, 8), 28);
-	assertEquals(clock_res_get.call(context, 4, 8), 28);
+	assertEquals(module.exports.clock_res_get(-1, 8), 28);
+	assertEquals(module.exports.clock_res_get(4, 8), 28);
 
-	assertEquals(clock_res_get.call(context, Clock.Realtime, 8), 0);
+	assertEquals(module.exports.clock_res_get(Clock.Realtime, 8), 0);
 	assertNotEquals(view.getBigUint64(8), 0);
 
-	assertEquals(clock_res_get.call(context, Clock.Monotonic, 8), 0);
+	assertEquals(module.exports.clock_res_get(Clock.Monotonic, 8), 0);
 	assertNotEquals(view.getBigUint64(8), 0);
 
-	assertEquals(clock_res_get.call(context, Clock.Process, 8), 0);
+	assertEquals(module.exports.clock_res_get(Clock.Process, 8), 0);
 	assertNotEquals(view.getBigUint64(8), 0);
 
-	assertEquals(clock_res_get.call(context, Clock.Thread, 8), 0);
+	assertEquals(module.exports.clock_res_get(Clock.Thread, 8), 0);
 	assertNotEquals(view.getBigUint64(8), 0);
 });
 
 Deno.test("clock_time_get", function() {
-	const context : Context = {
+	const module = new Module({
 		memory: new WebAssembly.Memory({ initial: 1 }),
-	};
+	});
 
-	const view = new DataView(context.memory.buffer);
+	const view = new DataView(module.memory.buffer);
 
-	assertEquals(clock_time_get.call(context, -1, 0, 8), 28);
-	assertEquals(clock_time_get.call(context, 4, 0, 8), 28);
+	assertEquals(module.exports.clock_time_get(-1, 0, 8), 28);
+	assertEquals(module.exports.clock_time_get(4, 0, 8), 28);
 
-	assertEquals(clock_time_get.call(context, Clock.Realtime, 0, 8), 0);
+	assertEquals(module.exports.clock_time_get(Clock.Realtime, 0, 8), 0);
 	assertNotEquals(view.getBigUint64(8, true), 0);
-	assertEquals(clock_time_get.call(context, Clock.Realtime, 1, 8), 0);
-	assertNotEquals(view.getBigUint64(8, true), 0);
-
-	assertEquals(clock_time_get.call(context, Clock.Monotonic, 0, 8), 0);
-	assertNotEquals(view.getBigUint64(8, true), 0);
-	assertEquals(clock_time_get.call(context, Clock.Monotonic, 1, 8), 0);
+	assertEquals(module.exports.clock_time_get(Clock.Realtime, 1, 8), 0);
 	assertNotEquals(view.getBigUint64(8, true), 0);
 
-	assertEquals(clock_time_get.call(context, Clock.Process, 0, 8), 0);
+	assertEquals(module.exports.clock_time_get(Clock.Monotonic, 0, 8), 0);
 	assertNotEquals(view.getBigUint64(8, true), 0);
-	assertEquals(clock_time_get.call(context, Clock.Process, 1, 8), 0);
+	assertEquals(module.exports.clock_time_get(Clock.Monotonic, 1, 8), 0);
 	assertNotEquals(view.getBigUint64(8, true), 0);
 
-	assertEquals(clock_time_get.call(context, Clock.Thread, 0, 8), 0);
+	assertEquals(module.exports.clock_time_get(Clock.Process, 0, 8), 0);
 	assertNotEquals(view.getBigUint64(8, true), 0);
-	assertEquals(clock_time_get.call(context, Clock.Thread, 1, 8), 0);
+	assertEquals(module.exports.clock_time_get(Clock.Process, 1, 8), 0);
+	assertNotEquals(view.getBigUint64(8, true), 0);
+
+	assertEquals(module.exports.clock_time_get(Clock.Thread, 0, 8), 0);
+	assertNotEquals(view.getBigUint64(8, true), 0);
+	assertEquals(module.exports.clock_time_get(Clock.Thread, 1, 8), 0);
 	assertNotEquals(view.getBigUint64(8, true), 0);
 });
 
 Deno.test("proc_exit", async function() {
 	const script = `
-		import { proc_exit } from "./mod.ts";
-		const context = {
-			memory: new WebAssembly.Memory({ initial: 1 }),
-		};
+		import Module from "./mod.ts";
 
-		proc_exit.call(context, 1);
+		const module = new Module({
+			memory: new WebAssembly.Memory({ initial: 1 }),
+		});
+
+		module.exports.proc_exit(1);
 	`;
 
 	const process = await Deno.run({ cmd: ["deno", "eval", script] });
@@ -270,22 +226,22 @@ Deno.test("proc_exit", async function() {
 });
 
 Deno.test("random_get", function() {
-	const context : Context = {
+	const module = new Module({
 		memory: new WebAssembly.Memory({ initial: 1 }),
-	};
+	});
 
-	const heap = new Uint8Array(context.memory.buffer);
+	const heap = new Uint8Array(module.memory.buffer);
 
-	assertEquals(random_get.call(context, 0, 0), 0);
-	assertEquals(random_get.call(context, 0, 1), 0);
-	assertEquals(random_get.call(context, 0, 2), 0);
-	assertEquals(random_get.call(context, 0, 4), 0);
-	assertEquals(random_get.call(context, 0, 8), 0);
-	assertEquals(random_get.call(context, 0, 16), 0);
-	assertEquals(random_get.call(context, 0, 32), 0);
-	assertEquals(random_get.call(context, 0, 64), 0);
-	assertEquals(random_get.call(context, 0, 128), 0);
-	assertEquals(random_get.call(context, 0, 256), 0);
-	assertEquals(random_get.call(context, 0, 512), 0);
-	assertEquals(random_get.call(context, 0, 1024), 0);
+	assertEquals(module.exports.random_get(0, 0), 0);
+	assertEquals(module.exports.random_get(0, 1), 0);
+	assertEquals(module.exports.random_get(0, 2), 0);
+	assertEquals(module.exports.random_get(0, 4), 0);
+	assertEquals(module.exports.random_get(0, 8), 0);
+	assertEquals(module.exports.random_get(0, 16), 0);
+	assertEquals(module.exports.random_get(0, 32), 0);
+	assertEquals(module.exports.random_get(0, 64), 0);
+	assertEquals(module.exports.random_get(0, 128), 0);
+	assertEquals(module.exports.random_get(0, 256), 0);
+	assertEquals(module.exports.random_get(0, 512), 0);
+	assertEquals(module.exports.random_get(0, 1024), 0);
 });
