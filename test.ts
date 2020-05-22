@@ -243,6 +243,25 @@ Deno.test("fd_read", function() {
 	assertEquals(module.exports.fd_read(0, 8, 1, 0), 0);
 });
 
+Deno.test("fd_write", function() {
+	const module = new Module({
+		memory: new WebAssembly.Memory({ initial: 1 }),
+	});
+
+	module.descriptors = [
+		{
+			handle: {
+				writeSync: function(buffer : Uint8Array) {
+					return 0;
+				},
+			}
+		}
+	];
+
+	assertEquals(module.exports.fd_write(-1, 8, 1, 0), 8);
+	assertEquals(module.exports.fd_write(0, 8, 1, 0), 0);
+});
+
 Deno.test("proc_exit", async function() {
 	const script = `
 		import Module from "./mod.ts";
