@@ -431,7 +431,28 @@ export class Module {
 		},
 
 		fd_read: (fd : number, iovs_ptr : number, iovs_len : number, nread_out : number) : number => {
-			return ERRNO_NOSYS;
+			const descriptor = this.descriptors[fd];
+			if (!descriptor) {
+				return ERRNO_BADF;
+			}
+
+			const view = new DataView(this.memory.buffer);
+
+			let nread = 0;
+			for (let i = 0; i < iovs_len; i++) {
+				const data_ptr = view.getUint32(iovs_ptr, true);
+				iovs_ptr += 4;
+
+				const data_len = view.getUint32(iovs_ptr, true);
+				iovs_ptr += 4;
+
+				const data = new Uint8Array(this.memory.buffer);
+				nread += descriptor.handle.readSync(data);
+			}
+
+			view.setUint32(nread_out, nread, true);
+
+			return ERRNO_SUCCESS;
 		},
 
 		fd_readdir: (fd : number, buf_ptr : number, buf_len : number, cookie : number, bufused_out : number) : number => {
