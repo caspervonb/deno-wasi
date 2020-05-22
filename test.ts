@@ -253,7 +253,7 @@ Deno.test("clock_time_get", function() {
 
 Deno.test("proc_exit", async function() {
 	const script = `
-		import { proc_exit } from "./wasi_snapshot_preview1.ts";
+		import { proc_exit } from "./mod.ts";
 		const context = {
 			memory: new WebAssembly.Memory({ initial: 1 }),
 		};
