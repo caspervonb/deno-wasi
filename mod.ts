@@ -476,7 +476,28 @@ export class Module {
 		},
 
 		fd_write: (fd : number, iovs_ptr : number, iovs_len : number, nwritten_out : number) : number => {
-			return ERRNO_NOSYS;
+			const descriptor = this.descriptors[fd];
+			if (!descriptor) {
+				return ERRNO_BADF;
+			}
+
+			const view = new DataView(this.memory.buffer);
+
+			let nwritten = 0;
+			for (let i = 0; i < iovs_len; i++) {
+				const data_ptr = view.getUint32(iovs_ptr, true);
+				iovs_ptr += 4;
+
+				const data_len = view.getUint32(iovs_ptr, true);
+				iovs_ptr += 4;
+
+				const data = new Uint8Array(this.memory.buffer);
+				nwritten += descriptor.handle.writeSync(data);
+			}
+
+			view.setUint32(nwritten_out, nwritten, true);
+
+			return ERRNO_SUCCESS;
 		},
 
 		path_create_directory: (fd : number, path_ptr : number, path_len : number) : number => {
