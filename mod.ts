@@ -200,78 +200,6 @@ const  SDFLAGS_WR                                =  0x0002;
 
 const  PREOPENTYPE_DIR                           =  0;
 
-export type Context = {
-	args? : string[];
-	env? : { [key: string]: string | undefined };
-	memory : WebAssembly.Memory;
-}
-
-export function args_get(this : Context, argv_ptr : number, argv_buf_ptr : number) : number
-{
-	const args = this.args ? this.args : [];
-	const text = new TextEncoder();
-	const heap = new Uint8Array(this.memory.buffer);
-	const view = new DataView(this.memory.buffer);
-
-	for (let arg of args) {
-		view.setUint32(argv_ptr, argv_buf_ptr, true);
-		argv_ptr += 4;
-
-		const data = text.encode(`${arg}\0`);
-		heap.set(data, argv_buf_ptr);
-		argv_buf_ptr += data.length;
-	}
-
-	return ERRNO_SUCCESS;
-}
-
-export function args_sizes_get(this : Context, argc_out : number, argv_buf_size_out : number) : number
-{
-	const args = this.args ? this.args : [];
-	const text = new TextEncoder();
-	const view = new DataView(this.memory.buffer);
-
-	view.setUint32(argc_out, args.length, true);
-	view.setUint32(argv_buf_size_out, args.reduce(function(acc, arg) {
-		return acc + text.encode(`${arg}\0`).length;
-	}, 0), true);
-
-	return ERRNO_SUCCESS;
-}
-
-export function environ_get(this : Context, environ_ptr : number, environ_buf_ptr : number) : number
-{
-	const entries = Object.entries(this.env ? this.env : []);
-	const text = new TextEncoder();
-	const heap = new Uint8Array(this.memory.buffer);
-	const view = new DataView(this.memory.buffer);
-
-	for (let [key, value] of entries) {
-		view.setUint32(environ_ptr, environ_buf_ptr, true);
-		environ_ptr += 4;
-
-		const data = text.encode(`${key}=${value}\0`);
-		heap.set(data, environ_buf_ptr);
-		environ_buf_ptr += data.length;
-	}
-
-	return ERRNO_SUCCESS;
-}
-
-export function environ_sizes_get(this : Context, environc_out : number, environ_buf_size_out : number) : number
-{
-	const entries = Object.entries(this.env ? this.env : []);
-	const text = new TextEncoder();
-	const view = new DataView(this.memory.buffer);
-
-	view.setUint32(environc_out, entries.length, true);
-	view.setUint32(environ_buf_size_out, entries.reduce(function(acc, [key, value]) {
-		return acc + text.encode(`${key}=${value}\0`).length;
-	}, 0), true);
-
-	return ERRNO_SUCCESS;
-}
-
 const clock_res_realtime = function() : bigint {
 	return BigInt(1e6);
 };
@@ -298,256 +226,300 @@ const clock_time_monotonic = function() : bigint {
 const clock_time_process = clock_time_monotonic;
 const clock_time_thread = clock_time_monotonic;
 
-export function clock_res_get(this : Context, clock : Clock, resolution_out : number) : number
-{
-	const view = new DataView(this.memory.buffer);
+export type ModuleOptions = {
+	args? : string[];
+	env? : { [key: string]: string | undefined };
+	memory? : WebAssembly.Memory;
+};
 
-	switch (clock) {
-		case Clock.Realtime:
-			view.setBigUint64(resolution_out, clock_res_realtime(), true);
-		break;
+export class Module {
+	args? : string[];
+	env? : { [key: string]: string | undefined };
 
-		case Clock.Monotonic:
-			view.setBigUint64(resolution_out, clock_res_monotonic(), true);
-		break;
+	memory : WebAssembly.Memory;
 
-		case Clock.Process:
-			view.setBigUint64(resolution_out, clock_res_process(), true);
-		break;
+	exports = {
+		args_get: (argv_ptr : number, argv_buf_ptr : number) : number => {
+			const args = this.args ? this.args : [];
+			const text = new TextEncoder();
+			const heap = new Uint8Array(this.memory.buffer);
+			const view = new DataView(this.memory.buffer);
 
-		case Clock.Thread:
-			view.setBigUint64(resolution_out, clock_res_thread(), true);
-		break;
+			for (let arg of args) {
+				view.setUint32(argv_ptr, argv_buf_ptr, true);
+				argv_ptr += 4;
 
-		default:
-			return ERRNO_INVAL;
+				const data = text.encode(`${arg}\0`);
+				heap.set(data, argv_buf_ptr);
+				argv_buf_ptr += data.length;
+			}
+
+			return ERRNO_SUCCESS;
+		},
+
+		args_sizes_get: (argc_out : number, argv_buf_size_out : number) : number => {
+			const args = this.args ? this.args : [];
+			const text = new TextEncoder();
+			const view = new DataView(this.memory.buffer);
+
+			view.setUint32(argc_out, args.length, true);
+			view.setUint32(argv_buf_size_out, args.reduce(function(acc, arg) {
+				return acc + text.encode(`${arg}\0`).length;
+			}, 0), true);
+
+			return ERRNO_SUCCESS;
+		},
+
+		environ_get: (environ_ptr : number, environ_buf_ptr : number) : number => {
+			const entries = Object.entries(this.env ? this.env : []);
+			const text = new TextEncoder();
+			const heap = new Uint8Array(this.memory.buffer);
+			const view = new DataView(this.memory.buffer);
+
+			for (let [key, value] of entries) {
+				view.setUint32(environ_ptr, environ_buf_ptr, true);
+				environ_ptr += 4;
+
+				const data = text.encode(`${key}=${value}\0`);
+				heap.set(data, environ_buf_ptr);
+				environ_buf_ptr += data.length;
+			}
+
+			return ERRNO_SUCCESS;
+		},
+
+		environ_sizes_get: (environc_out : number, environ_buf_size_out : number) : number => {
+			const entries = Object.entries(this.env ? this.env : []);
+			const text = new TextEncoder();
+			const view = new DataView(this.memory.buffer);
+
+			view.setUint32(environc_out, entries.length, true);
+			view.setUint32(environ_buf_size_out, entries.reduce(function(acc, [key, value]) {
+				return acc + text.encode(`${key}=${value}\0`).length;
+			}, 0), true);
+
+			return ERRNO_SUCCESS;
+		},
+
+		clock_res_get: (clock : Clock, resolution_out : number) : number => {
+			const view = new DataView(this.memory.buffer);
+
+			switch (clock) {
+				case Clock.Realtime:
+					view.setBigUint64(resolution_out, clock_res_realtime(), true);
+				break;
+
+				case Clock.Monotonic:
+					view.setBigUint64(resolution_out, clock_res_monotonic(), true);
+				break;
+
+				case Clock.Process:
+					view.setBigUint64(resolution_out, clock_res_process(), true);
+				break;
+
+				case Clock.Thread:
+					view.setBigUint64(resolution_out, clock_res_thread(), true);
+				break;
+
+				default:
+					return ERRNO_INVAL;
+			}
+
+			return ERRNO_SUCCESS;
+		},
+
+		clock_time_get: (clock : Clock, precision : number, time_out : number) : number => {
+			const view = new DataView(this.memory.buffer);
+
+			switch (clock) {
+				case Clock.Realtime:
+					view.setBigUint64(time_out, clock_time_realtime(), true);
+				break;
+
+				case Clock.Monotonic:
+					view.setBigUint64(time_out, clock_time_monotonic(), true);
+				break;
+
+				case Clock.Process:
+					view.setBigUint64(time_out, clock_time_process(), true);
+				break;
+
+				case Clock.Thread:
+					view.setBigUint64(time_out, clock_time_thread(), true);
+				break;
+
+				default:
+					return ERRNO_INVAL;
+			}
+
+			return ERRNO_SUCCESS;
+		},
+
+		fd_advise: (fd : number, offset : number, len : number, advice : number) : number => {
+			return ERRNO_NOSYS;
+		},
+
+		fd_allocate: (fd : number, offset : number, len : number) : number => {
+			return ERRNO_NOSYS;
+		},
+
+		fd_close: (fd : number) : number => {
+			return ERRNO_NOSYS;
+		},
+
+		fd_datasync: (fd : number) : number => {
+			return ERRNO_NOSYS;
+		},
+
+		fd_fdstat_get: (fd : number, stat_out : number) : number => {
+			return ERRNO_NOSYS;
+		},
+
+		fd_fdstat_set_flags: (fd : number, flags : number) : number => {
+			return ERRNO_NOSYS;
+		},
+
+		fd_fdstat_set_rights: (fd : number, fs_rights_base : number | bigint, fs_rights_inheriting : number | bigint) : number => {
+			return ERRNO_NOSYS;
+		},
+
+		fd_filestat_get: (fd : number, buf_out : number) : number => {
+			return ERRNO_NOSYS;
+		},
+
+		fd_filestat_set_size: (fd : number, size : number) : number => {
+			return ERRNO_NOSYS;
+		},
+
+		fd_filestat_set_times: (fd : number, atim : number, mtim : number, fst_flags : number) : number => {
+			return ERRNO_NOSYS;
+		},
+
+		fd_pread: (fd : number, iovs_ptr : number, iovs_len : number, offset : number, nread_out : number) : number => {
+			return ERRNO_NOSYS;
+		},
+
+		fd_prestat_get: (fd : number, buf_out : number) : number => {
+			return ERRNO_NOSYS;
+		},
+
+		fd_prestat_dir_name: (fd : number, path_ptr : number, path_len : number) : number => {
+			return ERRNO_NOSYS;
+		},
+
+		fd_pwrite: (fd : number, iovs_ptr : number, iovs_len : number, offset : number, nwritten_out : number) : number => {
+			return ERRNO_NOSYS;
+		},
+
+		fd_read: (fd : number, iovs_ptr : number, iovs_len : number, nread_out : number) : number => {
+			return ERRNO_NOSYS;
+		},
+
+		fd_readdir: (fd : number, buf_ptr : number, buf_len : number, cookie : number, bufused_out : number) : number => {
+			return ERRNO_NOSYS;
+		},
+
+		fd_renumber: (fd : number, to : number) : number => {
+			return ERRNO_NOSYS;
+		},
+
+		fd_seek: (fd : number, offset : number, whence : number, newoffset_out : number) : number => {
+			return ERRNO_NOSYS;
+		},
+
+		fd_sync: (fd : number) : number => {
+			return ERRNO_NOSYS;
+		},
+
+		fd_tell: (fd : number, offset_out : number) : number => {
+			return ERRNO_NOSYS;
+		},
+
+		fd_write: (fd : number, iovs_ptr : number, iovs_len : number, nwritten_out : number) : number => {
+			return ERRNO_NOSYS;
+		},
+
+		path_create_directory: (fd : number, path_ptr : number, path_len : number) : number => {
+			return ERRNO_NOSYS;
+		},
+
+		path_filestat_get: (fd : number, flags : number, path_ptr : number, path_len : number, buf_out : number) : number => {
+			return ERRNO_NOSYS;
+		},
+
+		path_filestat_set_times: (fd : number, flags : number, path_ptr : number, path_len : number, atim : number, mtim : number, fst_flags : number) : number => {
+			return ERRNO_NOSYS;
+		},
+
+		path_link: (old_fd : number, old_flags : number, old_path_ptr : number, old_path_len : number, new_fd : number, new_path_ptr : number, new_path_len : number) : number => {
+			return ERRNO_NOSYS;
+		},
+
+		path_open: (fd : number, dirflags : number, path_ptr : number, path_len : number, oflags : number, fs_rights_base : number | bigint, fs_rights_inherting : number | bigint, fdflags : number, opened_fd_out : number) : number => {
+			return ERRNO_NOSYS;
+		},
+
+		path_readlink: (fd : number, path_ptr : number, path_len : number, buf_ptr : number, buf_len : number, bufused_out : number) : number => {
+			return ERRNO_NOSYS;
+		},
+
+		path_remove_directory: (fd : number, path_ptr : number, path_len : number) : number => {
+			return ERRNO_NOSYS;
+		},
+
+		path_rename: (fd : number, old_path_ptr : number, old_path_len : number, new_fd : number, new_path_ptr : number, new_path_len : number) : number => {
+			return ERRNO_NOSYS;
+		},
+
+		path_symlink: (old_path_ptr : number, old_path_len : number, fd : number, new_path_ptr : number, new_path_len : number) : number => {
+			return ERRNO_NOSYS;
+		},
+
+		path_unlink_file: (fd : number, path_ptr : number, path_len : number) : number => {
+			return ERRNO_NOSYS;
+		},
+
+		poll_oneoff: (in_ptr : number, out_ptr : number, nsubscriptions : number, nevents_out : number) : number => {
+			return ERRNO_NOSYS;
+		},
+
+		proc_exit: (rval : number) : never => {
+			Deno.exit(rval);
+		},
+
+		proc_raise: (sig : number) : number => {
+			return ERRNO_NOSYS;
+		},
+
+		sched_yield: () : number => {
+			return ERRNO_NOSYS;
+		},
+
+		random_get: (buf_ptr : number, buf_len : number) : number => {
+			const buffer = new Uint8Array(this.memory.buffer, buf_ptr, buf_len);
+			crypto.getRandomValues(buffer);
+
+			return ERRNO_SUCCESS;
+		},
+
+		sock_recv: (fd : number, ri_data_ptr : number, ri_data_len : number, ri_flags : number, ro_datalen_out : number, ro_flags_out : number) : number => {
+			return ERRNO_NOSYS;
+		},
+
+		sock_send: (fd : number, si_data_ptr : number, si_data_len : number, si_flags : number, so_datalen_out : number) : number => {
+			return ERRNO_NOSYS;
+		},
+
+		sock_shutdown: (fd : number, how : number) : number => {
+			return ERRNO_NOSYS;
+		},
+	};
+
+	constructor(options : ModuleOptions) {
+		this.args = options.args;
+		this.env = options.env;
+		this.memory = options.memory as WebAssembly.Memory;
 	}
+};
 
-	return ERRNO_SUCCESS;
-}
-
-export function clock_time_get(this : Context, clock : Clock, precision : number, time_out : number) : number
-{
-	const view = new DataView(this.memory.buffer);
-
-	switch (clock) {
-		case Clock.Realtime:
-			view.setBigUint64(time_out, clock_time_realtime(), true);
-		break;
-
-		case Clock.Monotonic:
-			view.setBigUint64(time_out, clock_time_monotonic(), true);
-		break;
-
-		case Clock.Process:
-			view.setBigUint64(time_out, clock_time_process(), true);
-		break;
-
-		case Clock.Thread:
-			view.setBigUint64(time_out, clock_time_thread(), true);
-		break;
-
-		default:
-			return ERRNO_INVAL;
-	}
-
-	return ERRNO_SUCCESS;
-}
-
-export function fd_advise(this : Context, fd : number, offset : number, len : number, advice : number) : number
-{
-	return ERRNO_NOSYS;
-}
-
-export function fd_allocate(this : Context, fd : number, offset : number, len : number) : number
-{
-	return ERRNO_NOSYS;
-}
-
-export function fd_close(this : Context, fd : number) : number
-{
-	return ERRNO_NOSYS;
-}
-
-export function fd_datasync(this : Context, fd : number) : number
-{
-	return ERRNO_NOSYS;
-}
-
-export function fd_fdstat_get(this : Context, fd : number, stat_out : number) : number
-{
-	return ERRNO_NOSYS;
-}
-
-export function fd_fdstat_set_flags(this : Context, fd : number, flags : number) : number
-{
-	return ERRNO_NOSYS;
-}
-
-export function fd_fdstat_set_rights(this : Context, fd : number, fs_rights_base : number | bigint, fs_rights_inheriting : number | bigint) : number
-{
-	return ERRNO_NOSYS;
-}
-
-export function fd_filestat_get(this : Context, fd : number, buf_out : number) : number
-{
-	return ERRNO_NOSYS;
-}
-
-export function fd_filestat_set_size(this : Context, fd : number, size : number) : number
-{
-	return ERRNO_NOSYS;
-}
-
-export function fd_filestat_set_times(this : Context, fd : number, atim : number, mtim : number, fst_flags : number) : number
-{
-	return ERRNO_NOSYS;
-}
-
-export function fd_pread(this : Context, fd : number, iovs_ptr : number, iovs_len : number, offset : number, nread_out : number) : number
-{
-	return ERRNO_NOSYS;
-}
-
-export function fd_prestat_get(this : Context, fd : number, buf_out : number) : number
-{
-	return ERRNO_NOSYS;
-}
-
-export function fd_prestat_dir_name(this : Context, fd : number, path_ptr : number, path_len : number) : number
-{
-	return ERRNO_NOSYS;
-}
-
-export function fd_pwrite(this : Context, fd : number, iovs_ptr : number, iovs_len : number, offset : number, nwritten_out : number) : number
-{
-	return ERRNO_NOSYS;
-}
-
-export function fd_read(this : Context, fd : number, iovs_ptr : number, iovs_len : number, nread_out : number) : number
-{
-	return ERRNO_NOSYS;
-}
-
-export function fd_readdir(this : Context, fd : number, buf_ptr : number, buf_len : number, cookie : number, bufused_out : number) : number
-{
-	return ERRNO_NOSYS;
-}
-
-export function fd_renumber(this : Context, fd : number, to : number) : number
-{
-	return ERRNO_NOSYS;
-}
-
-export function fd_seek(this : Context, fd : number, offset : number, whence : number, newoffset_out : number) : number
-{
-	return ERRNO_NOSYS;
-}
-
-export function fd_sync(this : Context, fd : number) : number
-{
-	return ERRNO_NOSYS;
-}
-
-export function fd_tell(this : Context, fd : number, offset_out : number) : number
-{
-	return ERRNO_NOSYS;
-}
-
-export function fd_write(this : Context, fd : number, iovs_ptr : number, iovs_len : number, nwritten_out : number) : number
-{
-	return ERRNO_NOSYS;
-}
-
-export function path_create_directory(this : Context, fd : number, path_ptr : number, path_len : number) : number
-{
-	return ERRNO_NOSYS;
-}
-
-export function path_filestat_get(this : Context, fd : number, flags : number, path_ptr : number, path_len : number, buf_out : number) : number
-{
-	return ERRNO_NOSYS;
-}
-
-export function path_filestat_set_times(this : Context, fd : number, flags : number, path_ptr : number, path_len : number, atim : number, mtim : number, fst_flags : number) : number
-{
-	return ERRNO_NOSYS;
-}
-
-export function path_link(this : Context, old_fd : number, old_flags : number, old_path_ptr : number, old_path_len : number, new_fd : number, new_path_ptr : number, new_path_len : number) : number
-{
-	return ERRNO_NOSYS;
-}
-
-export function path_open(this : Context, fd : number, dirflags : number, path_ptr : number, path_len : number, oflags : number, fs_rights_base : number | bigint, fs_rights_inherting : number | bigint, fdflags : number, opened_fd_out : number) : number
-{
-	return ERRNO_NOSYS;
-}
-
-export function path_readlink(this : Context, fd : number, path_ptr : number, path_len : number, buf_ptr : number, buf_len : number, bufused_out : number) : number
-{
-	return ERRNO_NOSYS;
-}
-
-export function path_remove_directory(this : Context, fd : number, path_ptr : number, path_len : number) : number
-{
-	return ERRNO_NOSYS;
-}
-
-export function path_rename(this : Context, fd : number, old_path_ptr : number, old_path_len : number, new_fd : number, new_path_ptr : number, new_path_len : number) : number
-{
-	return ERRNO_NOSYS;
-}
-
-export function path_symlink(this : Context, old_path_ptr : number, old_path_len : number, fd : number, new_path_ptr : number, new_path_len : number) : number
-{
-	return ERRNO_NOSYS;
-}
-
-export function path_unlink_file(this : Context, fd : number, path_ptr : number, path_len : number) : number
-{
-	return ERRNO_NOSYS;
-}
-
-export function poll_oneoff(this : Context, in_ptr : number, out_ptr : number, nsubscriptions : number, nevents_out : number) : number
-{
-	return ERRNO_NOSYS;
-}
-
-export function proc_exit(this : Context, rval : number) : never
-{
-	Deno.exit(rval);
-}
-
-export function proc_raise(this : Context, sig : number) : number
-{
-	return ERRNO_NOSYS;
-}
-
-export function sched_yield(this : Context, ) : number
-{
-	return ERRNO_NOSYS;
-}
-
-export function random_get(this : Context, buf_ptr : number, buf_len : number) : number
-{
-	const buffer = new Uint8Array(this.memory.buffer, buf_ptr, buf_len);
-	crypto.getRandomValues(buffer);
-
-	return ERRNO_SUCCESS;
-}
-
-export function sock_recv(this : Context, fd : number, ri_data_ptr : number, ri_data_len : number, ri_flags : number, ro_datalen_out : number, ro_flags_out : number) : number
-{
-	return ERRNO_NOSYS;
-}
-
-export function sock_send(this : Context, fd : number, si_data_ptr : number, si_data_len : number, si_flags : number, so_datalen_out : number) : number
-{
-	return ERRNO_NOSYS;
-}
-
-export function sock_shutdown(this : Context, fd : number, how : number) : number
-{
-	return ERRNO_NOSYS;
-}
+export default Module;
