@@ -5,7 +5,7 @@ WebAssembly System Interface implementation for Deno
 ## Example
 
 ```typescript
-import WASI from "./https://deno.land/x/wasi/mod.ts";
+import WASI from "https://deno.land/x/wasi/mod.ts";
 
 const wasi = new WASI({
 	args: Deno.argv,
