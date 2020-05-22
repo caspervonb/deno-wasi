@@ -4,7 +4,6 @@ import {
 } from "https://deno.land/std/testing/asserts.ts";
 
 import {
-	Clock,
 	Module,
 } from "./mod.ts";
 
@@ -162,16 +161,16 @@ Deno.test("clock_res_get", function() : void {
 	assertEquals(module.exports.clock_res_get(-1, 8), 28);
 	assertEquals(module.exports.clock_res_get(4, 8), 28);
 
-	assertEquals(module.exports.clock_res_get(Clock.Realtime, 8), 0);
+	assertEquals(module.exports.clock_res_get(0, 8), 0);
 	assertNotEquals(view.getBigUint64(8), 0);
 
-	assertEquals(module.exports.clock_res_get(Clock.Monotonic, 8), 0);
+	assertEquals(module.exports.clock_res_get(1, 8), 0);
 	assertNotEquals(view.getBigUint64(8), 0);
 
-	assertEquals(module.exports.clock_res_get(Clock.Process, 8), 0);
+	assertEquals(module.exports.clock_res_get(2, 8), 0);
 	assertNotEquals(view.getBigUint64(8), 0);
 
-	assertEquals(module.exports.clock_res_get(Clock.Thread, 8), 0);
+	assertEquals(module.exports.clock_res_get(3, 8), 0);
 	assertNotEquals(view.getBigUint64(8), 0);
 });
 
@@ -185,24 +184,24 @@ Deno.test("clock_time_get", function() {
 	assertEquals(module.exports.clock_time_get(-1, 0, 8), 28);
 	assertEquals(module.exports.clock_time_get(4, 0, 8), 28);
 
-	assertEquals(module.exports.clock_time_get(Clock.Realtime, 0, 8), 0);
+	assertEquals(module.exports.clock_time_get(0, 0, 8), 0);
 	assertNotEquals(view.getBigUint64(8, true), 0);
-	assertEquals(module.exports.clock_time_get(Clock.Realtime, 1, 8), 0);
-	assertNotEquals(view.getBigUint64(8, true), 0);
-
-	assertEquals(module.exports.clock_time_get(Clock.Monotonic, 0, 8), 0);
-	assertNotEquals(view.getBigUint64(8, true), 0);
-	assertEquals(module.exports.clock_time_get(Clock.Monotonic, 1, 8), 0);
+	assertEquals(module.exports.clock_time_get(0, 1, 8), 0);
 	assertNotEquals(view.getBigUint64(8, true), 0);
 
-	assertEquals(module.exports.clock_time_get(Clock.Process, 0, 8), 0);
+	assertEquals(module.exports.clock_time_get(1, 0, 8), 0);
 	assertNotEquals(view.getBigUint64(8, true), 0);
-	assertEquals(module.exports.clock_time_get(Clock.Process, 1, 8), 0);
+	assertEquals(module.exports.clock_time_get(1, 1, 8), 0);
 	assertNotEquals(view.getBigUint64(8, true), 0);
 
-	assertEquals(module.exports.clock_time_get(Clock.Thread, 0, 8), 0);
+	assertEquals(module.exports.clock_time_get(2, 0, 8), 0);
 	assertNotEquals(view.getBigUint64(8, true), 0);
-	assertEquals(module.exports.clock_time_get(Clock.Thread, 1, 8), 0);
+	assertEquals(module.exports.clock_time_get(2, 1, 8), 0);
+	assertNotEquals(view.getBigUint64(8, true), 0);
+
+	assertEquals(module.exports.clock_time_get(3, 0, 8), 0);
+	assertNotEquals(view.getBigUint64(8, true), 0);
+	assertEquals(module.exports.clock_time_get(3, 1, 8), 0);
 	assertNotEquals(view.getBigUint64(8, true), 0);
 });
 
