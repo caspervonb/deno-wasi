@@ -205,6 +205,25 @@ Deno.test("clock_time_get", function() {
 	assertNotEquals(view.getBigUint64(8, true), 0);
 });
 
+Deno.test("fd_close", function() {
+	const module = new Module({
+		memory: new WebAssembly.Memory({ initial: 1 }),
+	});
+
+	module.descriptors = [
+		{
+			handle: {
+				close: function() {
+				},
+			}
+		}
+	];
+
+	assertEquals(module.exports.fd_close(-1), 8);
+	assertEquals(module.exports.fd_close(0), 0);
+	assertEquals(module.exports.fd_close(0), 8);
+});
+
 Deno.test("proc_exit", async function() {
 	const script = `
 		import Module from "./mod.ts";

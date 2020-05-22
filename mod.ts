@@ -375,7 +375,15 @@ export class Module {
 		},
 
 		fd_close: (fd : number) : number => {
-			return ERRNO_NOSYS;
+			const descriptor = this.descriptors[fd];
+			if (!descriptor) {
+				return ERRNO_BADF;
+			}
+
+			descriptor.handle.close();
+			delete this.descriptors[fd];
+
+			return ERRNO_SUCCESS;
 		},
 
 		fd_datasync: (fd : number) : number => {
