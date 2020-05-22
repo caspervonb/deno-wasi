@@ -12,7 +12,9 @@ const wasi = new WASI({
 	env: Deno.env,
 });
 
-const { module, instance } = await WebAssembly.instantiateStreaming(fetch("command.wasm"), {
+const source = Deno.readAll("command.wasm");
+const module = await WebAssembly.compile(source);
+const instance = await WebAssembly.instantiate(module, {
 	wasi_snapshot_preview1: wasi.exports,
 });
 
