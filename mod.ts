@@ -233,30 +233,30 @@ export type ModuleOptions = {
 export class Module {
 	args? : string[];
 	env? : { [key: string]: string | undefined };
-
 	memory : WebAssembly.Memory;
 
-	descriptors : any = [
-		{
-			type: FILETYPE_CHARACTER_DEVICE,
-			handle: Deno.stdin,
-		},
-		{
-			type: FILETYPE_CHARACTER_DEVICE,
-			handle: Deno.stdout,
-		},
-		{
-			type: FILETYPE_CHARACTER_DEVICE,
-			handle: Deno.stderr,
-		},
-	];
-
+	descriptors : any[];
 	exports: { [key: string]: any };
 
 	constructor(options : ModuleOptions) {
 		this.args = options.args;
 		this.env = options.env;
 		this.memory = options.memory as WebAssembly.Memory;
+
+		this.descriptors = [
+			{
+				type: FILETYPE_CHARACTER_DEVICE,
+				handle: Deno.stdin,
+			},
+			{
+				type: FILETYPE_CHARACTER_DEVICE,
+				handle: Deno.stdout,
+			},
+			{
+				type: FILETYPE_CHARACTER_DEVICE,
+				handle: Deno.stderr,
+			},
+		];
 
 		this.exports = {
 			args_get: (argv_ptr : number, argv_buf_ptr : number) : number => {
