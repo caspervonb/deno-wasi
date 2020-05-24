@@ -231,7 +231,7 @@ export type ModuleOptions = {
 };
 
 export class Module {
-	args? : string[];
+	args : string[];
 	env? : { [key: string]: string | undefined };
 	memory : WebAssembly.Memory;
 
@@ -239,7 +239,7 @@ export class Module {
 	exports: { [key: string]: any };
 
 	constructor(options : ModuleOptions) {
-		this.args = options.args;
+		this.args = options.args ? options.args : [];
 		this.env = options.env;
 		this.memory = options.memory as WebAssembly.Memory;
 
@@ -260,7 +260,7 @@ export class Module {
 
 		this.exports = {
 			args_get: (argv_ptr : number, argv_buf_ptr : number) : number => {
-				const args = this.args ? this.args : [];
+				const args = this.args;
 				const text = new TextEncoder();
 				const heap = new Uint8Array(this.memory.buffer);
 				const view = new DataView(this.memory.buffer);
@@ -278,7 +278,7 @@ export class Module {
 			},
 
 			args_sizes_get: (argc_out : number, argv_buf_size_out : number) : number => {
-				const args = this.args ? this.args : [];
+				const args = this.args;
 				const text = new TextEncoder();
 				const view = new DataView(this.memory.buffer);
 
