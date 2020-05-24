@@ -238,12 +238,15 @@ export class Module {
 
 	descriptors : any = [
 		{
+			type: FILETYPE_CHARACTER_DEVICE,
 			handle: Deno.stdin,
 		},
 		{
+			type: FILETYPE_CHARACTER_DEVICE,
 			handle: Deno.stdout,
 		},
 		{
+			type: FILETYPE_CHARACTER_DEVICE,
 			handle: Deno.stderr,
 		},
 	];
