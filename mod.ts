@@ -232,7 +232,7 @@ export type ModuleOptions = {
 
 export class Module {
 	args : string[];
-	env? : { [key: string]: string | undefined };
+	env : { [key: string]: string | undefined };
 	memory : WebAssembly.Memory;
 
 	descriptors : any[];
@@ -240,7 +240,7 @@ export class Module {
 
 	constructor(options : ModuleOptions) {
 		this.args = options.args ? options.args : [];
-		this.env = options.env;
+		this.env = options.env ? options.env : {};
 		this.memory = options.memory as WebAssembly.Memory;
 
 		this.descriptors = [
@@ -291,7 +291,7 @@ export class Module {
 			},
 
 			environ_get: (environ_ptr : number, environ_buf_ptr : number) : number => {
-				const entries = Object.entries(this.env ? this.env : []);
+				const entries = Object.entries(this.env);
 				const text = new TextEncoder();
 				const heap = new Uint8Array(this.memory.buffer);
 				const view = new DataView(this.memory.buffer);
@@ -309,7 +309,7 @@ export class Module {
 			},
 
 			environ_sizes_get: (environc_out : number, environ_buf_size_out : number) : number => {
-				const entries = Object.entries(this.env ? this.env : []);
+				const entries = Object.entries(this.env);
 				const text = new TextEncoder();
 				const view = new DataView(this.memory.buffer);
 
