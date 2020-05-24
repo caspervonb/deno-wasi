@@ -19,5 +19,5 @@ const instance = await WebAssembly.instantiate(module, {
 });
 
 wasi.memory = module.exports.memory;
-module.exports._start();
+instance.exports._start();
 ```
