@@ -470,7 +470,19 @@ export class Module {
 			},
 
 			fd_renumber: (fd : number, to : number) : number => {
-				return ERRNO_NOSYS;
+				if (!this.fds[fd]) {
+					return ERRNO_BADF;
+				}
+
+				if (!this.fds[to]) {
+					return ERRNO_BADF;
+				}
+
+				this.fds[to].handle.close();
+				this.fds[to] = this.fds[fd];
+				delete this.fds[fd];
+
+				return ERRNO_SUCCESS;
 			},
 
 			fd_seek: (fd : number, offset : number, whence : number, newoffset_out : number) : number => {
