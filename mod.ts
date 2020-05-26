@@ -235,7 +235,7 @@ export class Module {
 	env : { [key: string]: string | undefined };
 	memory : WebAssembly.Memory;
 
-	descriptors : any[];
+	fds : any[];
 	exports: { [key: string]: any };
 
 	constructor(options : ModuleOptions) {
@@ -243,7 +243,7 @@ export class Module {
 		this.env = options.env ? options.env : {};
 		this.memory = options.memory as WebAssembly.Memory;
 
-		this.descriptors = [
+		this.fds = [
 			{
 				type: FILETYPE_CHARACTER_DEVICE,
 				handle: Deno.stdin,
@@ -385,13 +385,13 @@ export class Module {
 			},
 
 			fd_close: (fd : number) : number => {
-				const descriptor = this.descriptors[fd];
-				if (!descriptor) {
+				const entry = this.fds[fd];
+				if (!entry) {
 					return ERRNO_BADF;
 				}
 
-				descriptor.handle.close();
-				delete this.descriptors[fd];
+				entry.handle.close();
+				delete this.fds[fd];
 
 				return ERRNO_SUCCESS;
 			},
@@ -441,8 +441,8 @@ export class Module {
 			},
 
 			fd_read: (fd : number, iovs_ptr : number, iovs_len : number, nread_out : number) : number => {
-				const descriptor = this.descriptors[fd];
-				if (!descriptor) {
+				const entry = this.fds[fd];
+				if (!entry) {
 					return ERRNO_BADF;
 				}
 
@@ -457,7 +457,7 @@ export class Module {
 					iovs_ptr += 4;
 
 					const data = new Uint8Array(this.memory.buffer);
-					nread += descriptor.handle.readSync(data);
+					nread += entry.handle.readSync(data);
 				}
 
 				view.setUint32(nread_out, nread, true);
@@ -486,8 +486,8 @@ export class Module {
 			},
 
 			fd_write: (fd : number, iovs_ptr : number, iovs_len : number, nwritten_out : number) : number => {
-				const descriptor = this.descriptors[fd];
-				if (!descriptor) {
+				const entry = this.fds[fd];
+				if (!entry) {
 					return ERRNO_BADF;
 				}
 
@@ -502,7 +502,7 @@ export class Module {
 					iovs_ptr += 4;
 
 					const data = new Uint8Array(this.memory.buffer);
-					nwritten += descriptor.handle.writeSync(data);
+					nwritten += entry.handle.writeSync(data);
 				}
 
 				view.setUint32(nwritten_out, nwritten, true);

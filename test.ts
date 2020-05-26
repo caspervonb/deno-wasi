@@ -210,7 +210,7 @@ Deno.test("fd_close", function() {
 		memory: new WebAssembly.Memory({ initial: 1 }),
 	});
 
-	module.descriptors = [
+	module.fds = [
 		{
 			handle: {
 				close: function() {
@@ -229,7 +229,7 @@ Deno.test("fd_read", function() {
 		memory: new WebAssembly.Memory({ initial: 1 }),
 	});
 
-	module.descriptors = [
+	module.fds = [
 		{
 			handle: {
 				readSync: function(buffer : Uint8Array) {
@@ -248,7 +248,7 @@ Deno.test("fd_write", function() {
 		memory: new WebAssembly.Memory({ initial: 1 }),
 	});
 
-	module.descriptors = [
+	module.fds = [
 		{
 			handle: {
 				writeSync: function(buffer : Uint8Array) {
