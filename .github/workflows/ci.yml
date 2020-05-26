@@ -1,0 +1,22 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up deno
+      run: |
+        curl -fsSL https://deno.land/x/install/install.sh | sh -s "v1.0.2"
+        echo "::add-path::$HOME/.deno/bin"
+
+    - name: Run tests
+      run: deno test -A
