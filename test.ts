@@ -482,6 +482,76 @@ Deno.test("fd_write with a valid file descriptor", function() {
 	assertEquals(module.exports.fd_write(0, 8, 1, 0), 0);
 });
 
+Deno.test("path_create_directory with a bad directory descriptor", function() {
+	const module = new Module({
+		fds: [],
+		memory: new WebAssembly.Memory({ initial: 1 }),
+	});
+
+	assertEquals(module.exports.path_create_directory(0, 0, 8, 0), 8);
+});
+
+Deno.test("path_create_directory with an invalid directory descriptor", function() {
+	const module = new Module({
+		fds: [
+			{
+				path: null,
+			},
+		],
+		memory: new WebAssembly.Memory({ initial: 1 }),
+	});
+
+	assertEquals(module.exports.path_create_directory(0, 0, 8, 0), 28);
+});
+
+Deno.test("path_create_directory with an existing path", function() {
+	const dirname = Deno.makeTempDirSync();
+	const pathname = "directory";
+
+	Deno.mkdirSync(`${dirname}/${pathname}`);
+
+	const module = new Module({
+		fds: [
+			{
+				path: dirname,
+			},
+		],
+		memory: new WebAssembly.Memory({ initial: 1 }),
+	});
+
+	const text = new TextEncoder();
+	const data = text.encode(pathname);
+
+	const heap = new Uint8Array(module.memory.buffer);
+	heap.set(data);
+
+	assertEquals(module.exports.path_create_directory(0, 0, data.length, 0), 20);
+});
+
+Deno.test("path_create_directory with a non-existing path", function() {
+	const dirname = Deno.makeTempDirSync();
+	const pathname = "directory";
+
+	const module = new Module({
+		fds: [
+			{
+				path: dirname,
+			},
+		],
+		memory: new WebAssembly.Memory({ initial: 1 }),
+	});
+
+	const text = new TextEncoder();
+	const data = text.encode(pathname);
+
+	const heap = new Uint8Array(module.memory.buffer);
+	heap.set(data);
+
+	assertEquals(module.exports.path_create_directory(0, 0, data.length, 0), 0);
+	assertEquals(Deno.statSync(`${dirname}/${pathname}`).isDirectory, true);
+	assertEquals(module.exports.path_create_directory(0, 0, data.length, 0), 20);
+});
+
 Deno.test("proc_exit with exit code 0", async function() {
 	const script = `
 		import Module from "./mod.ts";
