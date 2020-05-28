@@ -474,6 +474,25 @@ Deno.test("fd_write with a valid file descriptor", function() {
 	assertEquals(module.exports.fd_write(0, 8, 1, 0), 0);
 });
 
+Deno.test("proc_exit with exit code 0", async function() {
+	const script = `
+		import Module from "./mod.ts";
+
+		const module = new Module({
+			memory: new WebAssembly.Memory({ initial: 1 }),
+		});
+
+		module.exports.proc_exit(0);
+	`;
+
+	const process = await Deno.run({ cmd: ["deno", "eval", script] });
+	const status = await process.status();
+	assertEquals(status.success, true);
+	assertEquals(status.code, 0);
+
+	process.close();
+});
+
 Deno.test("proc_exit with exit code 1", async function() {
 	const script = `
 		import Module from "./mod.ts";
