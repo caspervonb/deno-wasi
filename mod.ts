@@ -227,6 +227,7 @@ const clock_time_thread = clock_time_monotonic;
 export type ModuleOptions = {
 	args? : string[];
 	env? : { [key: string]: string | undefined };
+	fds? : any[];
 	memory? : WebAssembly.Memory;
 };
 
@@ -243,7 +244,7 @@ export class Module {
 		this.env = options.env ? options.env : {};
 		this.memory = options.memory as WebAssembly.Memory;
 
-		this.fds = [
+		this.fds = options.fds ? options.fds : [
 			{
 				type: FILETYPE_CHARACTER_DEVICE,
 				handle: Deno.stdin,
