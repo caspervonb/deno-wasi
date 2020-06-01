@@ -575,7 +575,35 @@ export class Module {
 			},
 
 			path_remove_directory: (fd : number, path_ptr : number, path_len : number) : number => {
-				return ERRNO_NOSYS;
+				const entry = this.fds[fd];
+				if (!entry) {
+					return ERRNO_BADF;
+				}
+
+				if (!entry.path) {
+					return ERRNO_INVAL;
+				}
+
+				const text = new TextDecoder();
+				const data = new Uint8Array(this.memory.buffer, path_ptr, path_len);
+				const path = resolve(entry.path, text.decode(data));
+
+				try {
+					if (!Deno.statSync(path).isDirectory) {
+						return ERRNO_NOTDIR;
+					}
+
+					Deno.removeSync(path);
+				} catch (err) {
+					switch (err.name) {
+						case "NotFound":
+							return ERRNO_NOENT;
+						default:
+							return ERRNO_INVAL;
+					}
+				}
+
+				return ERRNO_SUCCESS;
 			},
 
 			path_rename: (fd : number, old_path_ptr : number, old_path_len : number, new_fd : number, new_path_ptr : number, new_path_len : number) : number => {
