@@ -544,11 +544,12 @@ export class Module {
 				try {
 					Deno.mkdirSync(path);
 				} catch (err) {
-					if (err instanceof Deno.errors['AlreadyExists']) {
-						return ERRNO_EXIST;
+					switch (err.name) {
+						case "AlreadyExists":
+							return ERRNO_EXIST;
+						default:
+							return ERRNO_INVAL;
 					}
-
-					return ERRNO_INVAL;
 				}
 
 				return ERRNO_SUCCESS;
