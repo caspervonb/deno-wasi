@@ -518,8 +518,7 @@ export class Module {
 					const data_len = view.getUint32(iovs_ptr, true);
 					iovs_ptr += 4;
 
-					const data = new Uint8Array(this.memory.buffer);
-					nwritten += entry.handle.writeSync(data);
+					nwritten += entry.handle.writeSync(new Uint8Array(this.memory.buffer, data_ptr, data_len));
 				}
 
 				view.setUint32(nwritten_out, nwritten, true);
