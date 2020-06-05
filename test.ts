@@ -59,7 +59,7 @@ for await (const entry of Deno.readDir("testdata/c")) {
 
 		if (moduleProcess.stderr) {
 			const actual = new TextDecoder().decode(await Deno.readAll(moduleProcess.stderr));
-			const expected = moduleOptions.stderr ? moduleOptions.stdout : "";
+			const expected = moduleOptions.stderr ? moduleOptions.stderr : "";
 
 			assertEquals(actual, expected);
 
