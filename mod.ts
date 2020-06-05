@@ -434,11 +434,11 @@ export class Module {
 			},
 
 			fd_prestat_get: (fd : number, buf_out : number) : number => {
-				return ERRNO_NOSYS;
+				return ERRNO_BADF;
 			},
 
 			fd_prestat_dir_name: (fd : number, path_ptr : number, path_len : number) : number => {
-				return ERRNO_NOSYS;
+				return ERRNO_BADF;
 			},
 
 			fd_pwrite: (fd : number, iovs_ptr : number, iovs_len : number, offset : number, nwritten_out : number) : number => {
