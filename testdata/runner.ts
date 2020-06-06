@@ -6,6 +6,9 @@ const mod = await WebAssembly.compile(bin);
 const wasi = new WASI({
 	env: Deno.env.toObject(),
 	args: Deno.args.slice(1),
+	preopens: {
+		"/tmp": Deno.makeTempDirSync(),
+	},
 });
 
 const instance = new WebAssembly.Instance(mod, {
