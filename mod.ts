@@ -231,7 +231,7 @@ const clock_time_thread = clock_time_monotonic;
 export type ModuleOptions = {
 	args? : string[];
 	env? : { [key: string]: string | undefined };
-	fds? : any[];
+	preopens?: { [key: string]: string };
 	memory? : WebAssembly.Memory;
 };
 
@@ -248,7 +248,7 @@ export class Module {
 		this.env = options.env ? options.env : {};
 		this.memory = options.memory as WebAssembly.Memory;
 
-		this.fds = options.fds ? options.fds : [
+		this.fds = [
 			{
 				type: FILETYPE_CHARACTER_DEVICE,
 				handle: Deno.stdin,
@@ -262,6 +262,25 @@ export class Module {
 				handle: Deno.stderr,
 			},
 		];
+
+		if (options.preopens) {
+			for (const [ vpath, path ] of Object.entries(options.preopens)) {
+				const info = Deno.statSync(path);
+				if (!info.isDirectory) {
+					throw new TypeError(`${path} is not a directory`);
+				}
+
+				const type = FILETYPE_DIRECTORY;
+
+				const entry = {
+					type,
+					path,
+					vpath,
+				};
+
+				this.fds.push(entry);
+			}
+		}
 
 		this.exports = {
 			args_get: (argv_ptr : number, argv_buf_ptr : number) : number => {
@@ -434,11 +453,36 @@ export class Module {
 			},
 
 			fd_prestat_get: (fd : number, buf_out : number) : number => {
-				return ERRNO_BADF;
+				const entry = this.fds[fd];
+				if (!entry) {
+					return ERRNO_BADF;
+				}
+
+				if (!entry.vpath) {
+					return ERRNO_BADF;
+				}
+
+				const view = new DataView(this.memory.buffer);
+				view.setUint8(buf_out, PREOPENTYPE_DIR);
+				view.setUint32(buf_out + 4, new TextEncoder().encode(entry.vpath).byteLength, true);
+
+				return ERRNO_SUCCESS;
 			},
 
 			fd_prestat_dir_name: (fd : number, path_ptr : number, path_len : number) : number => {
-				return ERRNO_BADF;
+				const entry = this.fds[fd];
+				if (!entry) {
+					return ERRNO_BADF;
+				}
+
+				if (!entry.vpath) {
+					return ERRNO_BADF;
+				}
+
+				const data = new Uint8Array(this.memory.buffer, path_ptr, path_len);
+				data.set(new TextEncoder().encode(entry.vpath));
+
+				return ERRNO_SUCCESS;
 			},
 
 			fd_pwrite: (fd : number, iovs_ptr : number, iovs_len : number, offset : number, nwritten_out : number) : number => {
