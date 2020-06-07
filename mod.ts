@@ -546,7 +546,24 @@ export class Module {
 			},
 
 			fd_seek: (fd : number, offset : number, whence : number, newoffset_out : number) : number => {
-				return ERRNO_NOSYS;
+				const entry = this.fds[fd];
+				if (!entry) {
+					return ERRNO_BADF;
+				}
+
+				const view = new DataView(this.memory.buffer);
+
+				try {
+					// FIXME Deno does not support seeking with big integers
+
+					const newoffset = entry.handle.seekSync(Number(offset), whence);
+					view.setBigUint64(newoffset_out, BigInt(newoffset), true);
+				} catch (err) {
+					console.error(err);
+					return ERRNO_INVAL;
+				}
+
+				return ERRNO_SUCCESS;
 			},
 
 			fd_sync: (fd : number) : number => {
