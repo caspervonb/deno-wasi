@@ -571,6 +571,20 @@ export class Module {
 			},
 
 			fd_tell: (fd : number, offset_out : number) : number => {
+				const entry = this.fds[fd];
+				if (!entry) {
+					return ERRNO_BADF;
+				}
+
+				const view = new DataView(this.memory.buffer);
+
+				try {
+					const offset = entry.handle.seekSync(0, Deno.SeekMode.Current);
+					view.setBigUint64(offset_out, offset, true);
+				} catch (err) {
+					return ERRNO_INVAL;
+				}
+
 				return ERRNO_NOSYS;
 			},
 
