@@ -425,7 +425,18 @@ export class Module {
 			},
 
 			fd_fdstat_get: (fd : number, stat_out : number) : number => {
-				return ERRNO_NOSYS;
+				const entry = this.fds[fd];
+				if (!entry) {
+					return ERRNO_BADF;
+				}
+
+				const view = new DataView(this.memory.buffer);
+				view.setUint8(stat_out, entry.type);
+				view.setUint16(stat_out + 4, 0, true); // TODO
+				view.setBigUint64(stat_out + 8, 0n, true); // TODO
+				view.setBigUint64(stat_out + 16, 0n, true); // TODO
+
+				return ERRNO_SUCCESS;
 			},
 
 			fd_fdstat_set_flags: (fd : number, flags : number) : number => {
