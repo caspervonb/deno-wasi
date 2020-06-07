@@ -3,9 +3,29 @@ import {
 	assertEquals,
 } from "https://deno.land/std/testing/asserts.ts";
 
-import {
-	Module,
-} from "./mod.ts";
+import WASI from "./mod.ts";
+
+if (import.meta.main) {
+	const bin = await Deno.readFile(Deno.args[0]);
+	const mod = await WebAssembly.compile(bin);
+
+	const wasi = new WASI({
+		env: Deno.env.toObject(),
+		args: Deno.args.slice(1),
+		preopens: {
+			"/tmp": Deno.makeTempDirSync(),
+		},
+	});
+
+	const instance = new WebAssembly.Instance(mod, {
+		wasi_snapshot_preview1: wasi.exports,
+	});
+
+	wasi.memory = instance.exports.memory;
+
+	instance.exports._start();
+	Deno.exit(0);
+}
 
 for await (const entry of Deno.readDir("testdata/c")) {
 	if (!entry.name.endsWith(".c")) {
@@ -32,7 +52,7 @@ for await (const entry of Deno.readDir("testdata/c")) {
 		compilerProcess.close()
 
 		const moduleProcess = await Deno.run({
-			cmd: ["deno", "run", "--v8-flags=--experimental-wasm-bigint", "-q", "-A", "testdata/runner.ts", modulePath, ...(moduleOptions.args ? moduleOptions.args : [])],
+			cmd: ["deno", "run", "--v8-flags=--experimental-wasm-bigint", "-q", "-A", "test.ts", modulePath, ...(moduleOptions.args ? moduleOptions.args : [])],
 			env: moduleOptions.env ? moduleOptions.env : {},
 			stdin: "piped",
 			stdout: "piped",
