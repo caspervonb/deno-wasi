@@ -622,7 +622,101 @@ export class Module {
 			},
 
 			path_open: (fd : number, dirflags : number, path_ptr : number, path_len : number, oflags : number, fs_rights_base : number | bigint, fs_rights_inherting : number | bigint, fdflags : number, opened_fd_out : number) : number => {
-				return ERRNO_NOSYS;
+				const entry = this.fds[fd];
+				if (!entry) {
+					return ERRNO_BADF;
+				}
+
+				if (!entry.path) {
+					return ERRNO_INVAL;
+				}
+
+				const text = new TextDecoder();
+				const data = new Uint8Array(this.memory.buffer, path_ptr, path_len);
+				const path = resolve(entry.path, text.decode(data));
+
+				const options = {
+					read: false,
+					write: false,
+					append: false,
+					truncate: false,
+					create: false,
+					createNew: false,
+				};
+
+				if ((oflags & OFLAGS_CREAT) !== 0) {
+					options.create = true;
+					options.write = true;
+				}
+
+				if ((oflags & OFLAGS_DIRECTORY) !== 0) {
+					// TODO (caspervonb) review if we can
+					// emulate this; unix supports opening
+					// directories, windows does not.
+				}
+
+				if ((oflags & OFLAGS_EXCL) !== 0) {
+					options.createNew = true;
+				}
+
+				if ((oflags & OFLAGS_TRUNC) !== 0) {
+					options.truncate = true;
+					options.write = true;
+				}
+
+				if ((BigInt(fs_rights_base) & BigInt(RIGHTS_FD_READ | RIGHTS_FD_READDIR)) != 0n) {
+					options.read = true;
+				}
+
+				if ((BigInt(fs_rights_base) & BigInt(RIGHTS_FD_DATASYNC | RIGHTS_FD_WRITE | RIGHTS_FD_ALLOCATE | RIGHTS_FD_FILESTAT_SET_SIZE)) != 0n) {
+					options.write = true;
+				}
+
+				if ((fdflags & FDFLAGS_APPEND) != 0) {
+					options.append = true;
+				}
+
+				if ((fdflags & FDFLAGS_DSYNC) != 0) {
+					// TODO (caspervonb) review if we can emulate this.
+				}
+
+				if ((fdflags & FDFLAGS_NONBLOCK) != 0) {
+					// TODO (caspervonb) review if we can emulate this.
+				}
+
+				if ((fdflags & FDFLAGS_RSYNC) != 0) {
+					// TODO (caspervonb) review if we can emulate this.
+				}
+
+				if ((fdflags & FDFLAGS_SYNC) != 0) {
+					// TODO (caspervonb) review if we can emulate this.
+				}
+
+				if (!options.read && !options.write && !options.truncate) {
+					options.read = true;
+				}
+
+				try {
+					const handle = Deno.openSync(path, options);
+					const opened_fd = this.fds.push({
+						handle,
+						path,
+					}) - 1;
+
+					const view = new DataView(this.memory.buffer);
+					view.setUint32(opened_fd_out, opened_fd, true);
+				} catch (err) {
+					console.error(err);
+					switch (err.name) {
+						case "AlreadyExists":
+							return ERRNO_EXIST;
+						default:
+							return ERRNO_INVAL;
+					}
+				}
+
+
+				return ERRNO_SUCCESS;
 			},
 
 			path_readlink: (fd : number, path_ptr : number, path_len : number, buf_ptr : number, buf_len : number, bufused_out : number) : number => {
