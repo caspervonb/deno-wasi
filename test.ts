@@ -13,6 +13,7 @@ if (import.meta.main) {
 		env: Deno.env.toObject(),
 		args: Deno.args.slice(1),
 		preopens: {
+			"/fixture": "testdata/fixture",
 			"/tmp": Deno.makeTempDirSync(),
 		},
 	});
