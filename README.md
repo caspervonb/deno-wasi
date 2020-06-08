@@ -1,5 +1,11 @@
 # WebAssembly System Interface implementation for Deno
 
+This package provides an implementation of the [WebAssembly System
+Interface](https://github.com/webassembly/wasi) for the
+[Deno](https://github.com/denoland/deno) TypeScript runtime.
+
+It is currently a work in progress so if a function isn't implemented, hit refresh.
+
 ## Example
 
 ```typescript
