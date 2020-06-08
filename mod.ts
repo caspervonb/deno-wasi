@@ -685,7 +685,72 @@ export class Module {
 			},
 
 			path_filestat_get: (fd : number, flags : number, path_ptr : number, path_len : number, buf_out : number) : number => {
-				return ERRNO_NOSYS;
+				const entry = this.fds[fd];
+				if (!entry) {
+					return ERRNO_BADF;
+				}
+
+				if (!entry.path) {
+					return ERRNO_INVAL;
+				}
+
+				const text = new TextDecoder();
+				const data = new Uint8Array(this.memory.buffer, path_ptr, path_len);
+				const path = resolve(entry.path, text.decode(data));
+
+				const view = new DataView(this.memory.buffer);
+
+				try {
+					const info = Deno.statSync(path);
+
+					view.setBigUint64(buf_out, BigInt(info.dev), true);
+					buf_out += 8;
+
+					view.setBigUint64(buf_out, BigInt(info.ino), true);
+					buf_out += 8;
+
+					switch (true) {
+						case info.isFile:
+							view.setUint8(buf_out, FILETYPE_REGULAR_FILE);
+							buf_out += 4;
+						break;
+
+						case info.isDirectory:
+							view.setUint8(buf_out, FILETYPE_DIRECTORY);
+							buf_out += 4;
+						break;
+
+						case info.isSymlink:
+							view.setUint8(buf_out, FILETYPE_SYMBOLIC_LINK);
+							buf_out += 4;
+						break;
+
+						default:
+							view.setUint8(buf_out, FILETYPE_UNKNOWN);
+							buf_out += 4;
+						break;
+					}
+
+
+					view.setUint32(buf_out, Number(info.nlink), true);
+					buf_out += 4;
+
+					view.setBigUint64(buf_out, BigInt(info.size), true);
+					buf_out += 8;
+
+					view.setBigUint64(buf_out, BigInt(info.atime ? info.atime.getTime() * 1e6 : 0), true);
+					buf_out += 8;
+
+					view.setBigUint64(buf_out, BigInt(info.mtime ? info.mtime.getTime() * 1e6 : 0), true);
+					buf_out += 8;
+
+					view.setBigUint64(buf_out, BigInt(info.birthtime ? info.birthtime.getTime() * 1e6 : 0), true);
+					buf_out += 8;
+				} catch (err) {
+					return errno(err);
+				}
+
+				return ERRNO_SUCCESS;
 			},
 
 			path_filestat_set_times: (fd : number, flags : number, path_ptr : number, path_len : number, atim : number, mtim : number, fst_flags : number) : number => {
