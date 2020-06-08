@@ -228,6 +228,55 @@ const clock_time_monotonic = function() : bigint {
 const clock_time_process = clock_time_monotonic;
 const clock_time_thread = clock_time_monotonic;
 
+function errno(err : Error) {
+	switch (err.name) {
+		case "NotFound":
+			return ERRNO_NOENT;
+
+		case "PermissionDenied":
+			return ERRNO_ACCES;
+
+		case "ConnectionRefused":
+			return ERRNO_CONNREFUSED;
+
+		case "ConnectionReset":
+			return ERRNO_CONNRESET;
+
+		case "ConnectionAborted":
+			return ERRNO_CONNABORTED;
+
+		case "NotConnected":
+			return ERRNO_NOTCONN;
+
+		case "AddrInUse":
+			return ERRNO_ADDRINUSE;
+
+		case "AddrNotAvailable":
+			return ERRNO_ADDRNOTAVAIL;
+
+		case "BrokenPipe":
+			return ERRNO_PIPE;
+
+		case "InvalidData":
+			return ERRNO_INVAL;
+
+		case "TimedOut":
+			return ERRNO_TIMEDOUT;
+
+		case "Interrupted":
+			return ERRNO_INTR;
+
+		case "BadResource":
+			return ERRNO_BADF;
+
+		case "Busy":
+			return ERRNO_BUSY;
+
+		default:
+			return ERRNO_INVAL;
+	}
+}
+
 export type ModuleOptions = {
 	args? : string[];
 	env? : { [key: string]: string | undefined };
@@ -629,12 +678,7 @@ export class Module {
 				try {
 					Deno.mkdirSync(path);
 				} catch (err) {
-					switch (err.name) {
-						case "AlreadyExists":
-							return ERRNO_EXIST;
-						default:
-							return ERRNO_INVAL;
-					}
+					return errno(err);
 				}
 
 				return ERRNO_SUCCESS;
@@ -737,13 +781,7 @@ export class Module {
 					const view = new DataView(this.memory.buffer);
 					view.setUint32(opened_fd_out, opened_fd, true);
 				} catch (err) {
-					console.error(err);
-					switch (err.name) {
-						case "AlreadyExists":
-							return ERRNO_EXIST;
-						default:
-							return ERRNO_INVAL;
-					}
+					return errno(err);
 				}
 
 
@@ -775,12 +813,7 @@ export class Module {
 
 					Deno.removeSync(path);
 				} catch (err) {
-					switch (err.name) {
-						case "NotFound":
-							return ERRNO_NOENT;
-						default:
-							return ERRNO_INVAL;
-					}
+					return errno(err);
 				}
 
 				return ERRNO_SUCCESS;
