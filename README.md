@@ -8,7 +8,7 @@ WebAssembly System Interface implementation for Deno
 import WASI from "https://deno.land/x/wasi/mod.ts";
 
 const wasi = new WASI({
-	args: Deno.argv,
+	args: Deno.args,
 	env: Deno.env,
 });
 
