@@ -19,5 +19,12 @@ const instance = await WebAssembly.instantiate(module, {
 });
 
 wasi.memory = module.exports.memory;
-instance.exports._start();
+
+if (module.exports._start) {
+	instance.exports._start();
+} else if (module.exports._initialize) {
+	instance.exports._initialize();
+} else {
+	throw new Error("No entry point found");
+}
 ```
