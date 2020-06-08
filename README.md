@@ -1,6 +1,4 @@
-# wasi
-
-WebAssembly System Interface implementation for Deno
+# WebAssembly System Interface implementation for Deno
 
 ## Example
 
