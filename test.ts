@@ -53,7 +53,7 @@ for await (const entry of Deno.readDir("testdata/c")) {
 		compilerProcess.close()
 
 		const moduleProcess = await Deno.run({
-			cmd: ["deno", "run", "--v8-flags=--experimental-wasm-bigint", "-q", "-A", "test.ts", modulePath, ...(moduleOptions.args ? moduleOptions.args : [])],
+			cmd: ["deno", "run", "--unstable", "--v8-flags=--experimental-wasm-bigint", "-q", "-A", "test.ts", modulePath, ...(moduleOptions.args ? moduleOptions.args : [])],
 			env: moduleOptions.env ? moduleOptions.env : {},
 			stdin: "piped",
 			stdout: "piped",
