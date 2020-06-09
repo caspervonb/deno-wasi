@@ -25,4 +25,4 @@ jobs:
       run: bash .github/scripts/setup_deno.sh
 
     - name: Run tests
-      run: deno test -A
+      run: deno test --unstable -A
