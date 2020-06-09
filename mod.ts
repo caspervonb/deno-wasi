@@ -915,7 +915,26 @@ export class Module {
 			},
 
 			path_unlink_file: (fd : number, path_ptr : number, path_len : number) : number => {
-				return ERRNO_NOSYS;
+				const entry = this.fds[fd];
+				if (!entry) {
+					return ERRNO_BADF;
+				}
+
+				if (!entry.path) {
+					return ERRNO_INVAL;
+				}
+
+				const text = new TextDecoder();
+				const data = new Uint8Array(this.memory.buffer, path_ptr, path_len);
+				const path = resolve(entry.path, text.decode(data));
+
+				try {
+					Deno.removeSync(path);
+				} catch (err) {
+					return errno(err);
+				}
+
+				return ERRNO_SUCCESS;
 			},
 
 			poll_oneoff: (in_ptr : number, out_ptr : number, nsubscriptions : number, nevents_out : number) : number => {
