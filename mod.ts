@@ -587,7 +587,7 @@ export class Module {
 					const heap = new Uint8Array(this.memory.buffer, buf_ptr, buf_len);
 					const view = new DataView(this.memory.buffer, buf_ptr, buf_len);
 
-					const entries = Array.from(Deno.readDirSync(entry.path));
+					const entries = Array.from(entry.handle) as Deno.DirEntry[];
 					for (let i = cookie; i < entries.length; i++) {
 						view.setBigUint64(bufused, BigInt(i) + BigInt(1), true);
 						bufused += 8;
@@ -832,6 +832,29 @@ export class Module {
 				const data = new Uint8Array(this.memory.buffer, path_ptr, path_len);
 				const path = resolve(entry.path, text.decode(data));
 
+				if ((oflags & OFLAGS_DIRECTORY) !== 0) {
+					try {
+						const handle = Object.assign(Deno.readDirSync(path), {
+							close: function() {
+								// no-op
+							},
+						});
+
+						const opened_fd = this.fds.push({
+							handle,
+							path,
+						}) - 1;
+
+						const view = new DataView(this.memory.buffer);
+						view.setUint32(opened_fd_out, opened_fd, true);
+					} catch (err) {
+						return errno(err);
+					}
+
+					return ERRNO_SUCCESS;
+				}
+
+
 				const options = {
 					read: false,
 					write: false,
@@ -844,12 +867,6 @@ export class Module {
 				if ((oflags & OFLAGS_CREAT) !== 0) {
 					options.create = true;
 					options.write = true;
-				}
-
-				if ((oflags & OFLAGS_DIRECTORY) !== 0) {
-					// TODO (caspervonb) review if we can
-					// emulate this; unix supports opening
-					// directories, windows does not.
 				}
 
 				if ((oflags & OFLAGS_EXCL) !== 0) {
