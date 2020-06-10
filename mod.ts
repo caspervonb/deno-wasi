@@ -832,6 +832,7 @@ export class Module {
 				const data = new Uint8Array(this.memory.buffer, path_ptr, path_len);
 				const path = resolve(entry.path, text.decode(data));
 
+				console.log(path);
 				if ((oflags & OFLAGS_DIRECTORY) !== 0) {
 					try {
 						const handle = Object.assign(Deno.readDirSync(path), {
@@ -848,6 +849,7 @@ export class Module {
 						const view = new DataView(this.memory.buffer);
 						view.setUint32(opened_fd_out, opened_fd, true);
 					} catch (err) {
+						console.log("OFLAGS_DIRECTORY", err);
 						return errno(err);
 					}
 
