@@ -608,7 +608,6 @@ export class Module {
 					const newoffset = entry.handle.seekSync(Number(offset), whence);
 					view.setBigUint64(newoffset_out, BigInt(newoffset), true);
 				} catch (err) {
-					console.error(err);
 					return ERRNO_INVAL;
 				}
 
