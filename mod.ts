@@ -575,7 +575,64 @@ export class Module {
 			},
 
 			fd_readdir: (fd : number, buf_ptr : number, buf_len : number, cookie : number, bufused_out : number) : number => {
-				return ERRNO_NOSYS;
+				const entry = this.fds[fd];
+				if (!entry) {
+					return ERRNO_BADF;
+				}
+
+				let bufused = 0;
+
+				try {
+					const text = new TextEncoder();
+					const heap = new Uint8Array(this.memory.buffer, buf_ptr, buf_len);
+					const view = new DataView(this.memory.buffer, buf_ptr, buf_len);
+
+					const entries = Array.from(Deno.readDirSync(entry.path));
+					for (let i = cookie; i < entries.length; i++) {
+						view.setBigUint64(bufused, BigInt(i) + BigInt(1), true);
+						bufused += 8;
+
+						const info = Deno.statSync(resolve(entry.path, entries[i].name));
+						view.setBigUint64(bufused, BigInt(info.ino), true);
+						bufused += 8;
+
+						const data = text.encode(entries[i].name);
+						view.setUint32(bufused, data.byteLength, true);
+						bufused += 4;
+
+						switch (true) {
+							case info.isFile:
+								view.setUint8(bufused, FILETYPE_REGULAR_FILE);
+								bufused += 4;
+							break;
+
+							case info.isDirectory:
+								view.setUint8(bufused, FILETYPE_DIRECTORY);
+								bufused += 4;
+							break;
+
+							case info.isSymlink:
+								view.setUint8(bufused, FILETYPE_SYMBOLIC_LINK);
+								bufused += 4;
+							break;
+
+							default:
+								view.setUint8(bufused, FILETYPE_UNKNOWN);
+								bufused += 4;
+							break;
+						}
+
+						heap.set(data, bufused);
+						bufused += data.byteLength;
+					}
+				} catch (err) {
+					return errno(err);
+				}
+
+				const view = new DataView(this.memory.buffer);
+				view.setUint32(bufused_out, bufused, true);
+
+				return ERRNO_SUCCESS;
 			},
 
 			fd_renumber: (fd : number, to : number) : number => {
@@ -712,22 +769,22 @@ export class Module {
 					switch (true) {
 						case info.isFile:
 							view.setUint8(buf_out, FILETYPE_REGULAR_FILE);
-							buf_out += 4;
+						buf_out += 4;
 						break;
 
 						case info.isDirectory:
 							view.setUint8(buf_out, FILETYPE_DIRECTORY);
-							buf_out += 4;
+						buf_out += 4;
 						break;
 
 						case info.isSymlink:
 							view.setUint8(buf_out, FILETYPE_SYMBOLIC_LINK);
-							buf_out += 4;
+						buf_out += 4;
 						break;
 
 						default:
 							view.setUint8(buf_out, FILETYPE_UNKNOWN);
-							buf_out += 4;
+						buf_out += 4;
 						break;
 					}
 
