@@ -43,9 +43,7 @@ jobs:
         echo "::add-path::c:/wasi-sdk/bin"
 
     - name: Set up deno
-      uses: denolib/setup-deno@master
-      with:
-        deno-version: v1.x
+      run: cargo install deno
 
     - name: Run tests
       run: deno test -A
