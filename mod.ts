@@ -422,7 +422,7 @@ export class Module {
 				return ERRNO_SUCCESS;
 			},
 
-			clock_time_get: (id: number, precision : number, time_out : number) : number => {
+			clock_time_get: (id: number, precision : bigint, time_out : number) : number => {
 				const view = new DataView(this.memory.buffer);
 
 				switch (id) {
@@ -449,11 +449,11 @@ export class Module {
 				return ERRNO_SUCCESS;
 			},
 
-			fd_advise: (fd : number, offset : number, len : number, advice : number) : number => {
+			fd_advise: (fd : number, offset : bigint, len : bigint, advice : number) : number => {
 				return ERRNO_NOSYS;
 			},
 
-			fd_allocate: (fd : number, offset : number, len : number) : number => {
+			fd_allocate: (fd : number, offset : bigint, len : bigint) : number => {
 				return ERRNO_NOSYS;
 			},
 
@@ -492,7 +492,7 @@ export class Module {
 				return ERRNO_NOSYS;
 			},
 
-			fd_fdstat_set_rights: (fd : number, fs_rights_base : number | bigint, fs_rights_inheriting : number | bigint) : number => {
+			fd_fdstat_set_rights: (fd : number, fs_rights_base : bigint, fs_rights_inheriting : bigint) : number => {
 				return ERRNO_NOSYS;
 			},
 
@@ -500,15 +500,15 @@ export class Module {
 				return ERRNO_NOSYS;
 			},
 
-			fd_filestat_set_size: (fd : number, size : number) : number => {
+			fd_filestat_set_size: (fd : number, size : bigint) : number => {
 				return ERRNO_NOSYS;
 			},
 
-			fd_filestat_set_times: (fd : number, atim : number, mtim : number, fst_flags : number) : number => {
+			fd_filestat_set_times: (fd : number, atim : bigint, mtim : bigint, fst_flags : number) : number => {
 				return ERRNO_NOSYS;
 			},
 
-			fd_pread: (fd : number, iovs_ptr : number, iovs_len : number, offset : number, nread_out : number) : number => {
+			fd_pread: (fd : number, iovs_ptr : number, iovs_len : number, offset : bigint, nread_out : number) : number => {
 				return ERRNO_NOSYS;
 			},
 
@@ -545,7 +545,7 @@ export class Module {
 				return ERRNO_SUCCESS;
 			},
 
-			fd_pwrite: (fd : number, iovs_ptr : number, iovs_len : number, offset : number, nwritten_out : number) : number => {
+			fd_pwrite: (fd : number, iovs_ptr : number, iovs_len : number, offset : bigint, nwritten_out : number) : number => {
 				return ERRNO_NOSYS;
 			},
 
@@ -574,7 +574,7 @@ export class Module {
 				return ERRNO_SUCCESS;
 			},
 
-			fd_readdir: (fd : number, buf_ptr : number, buf_len : number, cookie : number, bufused_out : number) : number => {
+			fd_readdir: (fd : number, buf_ptr : number, buf_len : number, cookie : bigint, bufused_out : number) : number => {
 				return ERRNO_NOSYS;
 			},
 
@@ -594,7 +594,7 @@ export class Module {
 				return ERRNO_SUCCESS;
 			},
 
-			fd_seek: (fd : number, offset : number, whence : number, newoffset_out : number) : number => {
+			fd_seek: (fd : number, offset : bigint, whence : number, newoffset_out : number) : number => {
 				const entry = this.fds[fd];
 				if (!entry) {
 					return ERRNO_BADF;
