@@ -509,7 +509,30 @@ export class Module {
 			},
 
 			fd_pread: (fd : number, iovs_ptr : number, iovs_len : number, offset : bigint, nread_out : number) : number => {
-				return ERRNO_NOSYS;
+				const entry = this.fds[fd];
+				if (!entry) {
+					return ERRNO_BADF;
+				}
+
+				const seek = entry.handle.seekSync(0, Deno.SeekMode.Current);
+				const view = new DataView(this.memory.buffer);
+
+				let nread = 0;
+				for (let i = 0; i < iovs_len; i++) {
+					const data_ptr = view.getUint32(iovs_ptr, true);
+					iovs_ptr += 4;
+
+					const data_len = view.getUint32(iovs_ptr, true);
+					iovs_ptr += 4;
+
+					const data = new Uint8Array(this.memory.buffer, data_ptr, data_len);
+					nread += entry.handle.readSync(data);
+				}
+
+				entry.handle.seekSync(seek, Deno.SeekMode.Start);
+				view.setUint32(nread_out, nread, true);
+
+				return ERRNO_SUCCESS;
 			},
 
 			fd_prestat_get: (fd : number, buf_out : number) : number => {
