@@ -4,7 +4,57 @@ This package provides an implementation of the [WebAssembly System
 Interface](https://github.com/webassembly/wasi) for the
 [Deno](https://github.com/denoland/deno) TypeScript runtime.
 
-It is currently a work in progress so if a function isn't implemented, hit refresh.
+# Status
+
+This is a work in progress so if a function isn't implemented, hit refresh.
+
+| Name                      | Status  | Notes                                                                                  |
+|---------------------------|:-------:|----------------------------------------------------------------------------------------|
+| `args_get`                | &check; |                                                                                        |
+| `args_sizes_get`          | &check; |                                                                                        |
+| `environ_get`             | &check; |                                                                                        |
+| `environ_sizes_get`       | &check; |                                                                                        |
+| `clock_res_get`           | &check; |                                                                                        |
+| `clock_time_get`          | &check; |                                                                                        |
+| `fd_advise`               |         | This has no obvious path to implementation at this time.                               |
+| `fd_allocate`             |         | This has no obvious path to implementation at this time.                               |
+| `fd_close`                | &check; |                                                                                        |
+| `fd_datasync`             |         | This is blocking on getting fdatasync(2) implemented upstream in Deno.                 |
+| `fd_fdstat_get`           | &check; | This currently does not write flags and rights as we do not track those at the moment. |
+| `fd_fdstat_set_flags`     |         | This has no obvious path to implementation at this time.                               |
+| `fd_fdstat_set_rights`    |         |                                                                                        |
+| `fd_filestat_get`         |         | This is blocking on getting fstat implemented upstream in Deno.                        |
+| `fd_filestat_set_size`    |         | This is blocking on getting ftruncate implemented upstream in Deno.                    |
+| `fd_filestat_set_times`   |         |                                                                                        |
+| `fd_pread`                | &check; |                                                                                        |
+| `fd_prestat_get`          | &check; |                                                                                        |
+| `fd_prestat_dir_name`     | &check; |                                                                                        |
+| `fd_pwrite`               | &check; |                                                                                        |
+| `fd_read`                 | &check; |                                                                                        |
+| `fd_readdir`              |         |                                                                                        |
+| `fd_renumber`             | &check; |                                                                                        |
+| `fd_seek`                 | &check; |                                                                                        |
+| `fd_sync`                 | &check; | This is blocking on getting fsync(2) implemented upstream in Deno.                     |
+| `fd_tell`                 | &check; |                                                                                        |
+| `fd_write`                | &check; |                                                                                        |
+| `path_create_directory`   | &check; |                                                                                        |
+| `path_filestat_get`       | &check; |                                                                                        |
+| `path_filestat_set_times` | &check; |                                                                                        |
+| `path_link`               |         |                                                                                        |
+| `path_open`               | &check; | Opening directories is not portable                                                    |
+| `path_readlink`           |         |                                                                                        |
+| `path_remove_directory`   | &check; |                                                                                        |
+| `path_rename`             | &check; |                                                                                        |
+| `path_symlink`            |         |                                                                                        |
+| `path_unlink_file`        | &check; |                                                                                        |
+| `poll_one_off`            |         |                                                                                        |
+| `proc_exit`               | &check; |                                                                                        |
+| `proc_raise`              |         |                                                                                        |
+| `sched_yield`             |         |                                                                                        |
+| `random_get`              | &check; |                                                                                        |
+| `sock_recv`               |         |                                                                                        |
+| `sock_send`               |         |                                                                                        |
+| `sock_shutdown`           |         |                                                                                        |
 
 ## Example
 
