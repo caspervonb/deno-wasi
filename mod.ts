@@ -971,7 +971,33 @@ export class Module {
 			},
 
 			path_readlink: (fd : number, path_ptr : number, path_len : number, buf_ptr : number, buf_len : number, bufused_out : number) : number => {
-				return ERRNO_NOSYS;
+				const entry = this.fds[fd];
+				if (!entry) {
+					return ERRNO_BADF;
+				}
+
+				if (!entry.path) {
+					return ERRNO_INVAL;
+				}
+
+				const view = new DataView(this.memory.buffer);
+				const heap = new Uint8Array(this.memory.buffer);
+
+				const data = new Uint8Array(this.memory.buffer, path_ptr, path_len);
+				const path = resolve(entry.path, new TextDecoder().decode(data));
+
+				try {
+					const link = Deno.readLinkSync(path);
+					const data = new TextEncoder().encode(link);
+					heap.set(new Uint8Array(data, 0, buf_len), buf_ptr);
+
+					const bufused = Math.min(data.byteLength, buf_len);
+					view.setUint32(bufused_out, bufused, true);
+				} catch (err) {
+					return errno(err);
+				}
+
+				return ERRNO_SUCCESS;
 			},
 
 			path_remove_directory: (fd : number, path_ptr : number, path_len : number) : number => {
