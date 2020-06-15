@@ -830,7 +830,29 @@ export class Module {
 			},
 
 			path_link: (old_fd : number, old_flags : number, old_path_ptr : number, old_path_len : number, new_fd : number, new_path_ptr : number, new_path_len : number) : number => {
-				return ERRNO_NOSYS;
+				const old_entry = this.fds[old_fd];
+				const new_entry = this.fds[new_fd];
+				if (!old_entry || !new_entry) {
+					return ERRNO_BADF;
+				}
+
+				if (!old_entry.path || !new_entry.path) {
+					return ERRNO_INVAL;
+				}
+
+				const text = new TextDecoder();
+				const old_data = new Uint8Array(this.memory.buffer, old_path_ptr, old_path_len);
+				const old_path = resolve(old_entry.path, text.decode(old_data));
+				const new_data = new Uint8Array(this.memory.buffer, new_path_ptr, new_path_len);
+				const new_path = resolve(new_entry.path, text.decode(new_data));
+
+				try {
+					Deno.linkSync(old_path, new_path);
+				} catch (err) {
+					return errno(err);
+				}
+
+				return ERRNO_SUCCESS;
 			},
 
 			path_open: (fd : number, dirflags : number, path_ptr : number, path_len : number, oflags : number, fs_rights_base : number | bigint, fs_rights_inherting : number | bigint, fdflags : number, opened_fd_out : number) : number => {
