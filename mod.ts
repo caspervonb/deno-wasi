@@ -1005,7 +1005,29 @@ export class Module {
 			},
 
 			path_symlink: (old_path_ptr : number, old_path_len : number, fd : number, new_path_ptr : number, new_path_len : number) : number => {
-				return ERRNO_NOSYS;
+				const entry = this.fds[fd];
+				if (!entry) {
+					return ERRNO_BADF;
+				}
+
+				if (!entry.path) {
+					return ERRNO_INVAL;
+				}
+
+
+				const text = new TextDecoder();
+				const old_data = new Uint8Array(this.memory.buffer, old_path_ptr, old_path_len);
+				const old_path = text.decode(old_data);
+				const new_data = new Uint8Array(this.memory.buffer, new_path_ptr, new_path_len);
+				const new_path = resolve(entry.path, text.decode(new_data));
+
+				try {
+					Deno.symlinkSync(old_path, new_path);
+				} catch (err) {
+					return errno(err);
+				}
+
+				return ERRNO_SUCCESS;
 			},
 
 			path_unlink_file: (fd : number, path_ptr : number, path_len : number) : number => {
