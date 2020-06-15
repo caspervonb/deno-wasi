@@ -748,10 +748,10 @@ export class Module {
 				try {
 					const info = Deno.statSync(path);
 
-					view.setBigUint64(buf_out, BigInt(info.dev), true);
+					view.setBigUint64(buf_out, BigInt(info.dev ? info.dev : 0), true);
 					buf_out += 8;
 
-					view.setBigUint64(buf_out, BigInt(info.ino), true);
+					view.setBigUint64(buf_out, BigInt(info.ino ? info.ino : 0), true);
 					buf_out += 8;
 
 					switch (true) {
