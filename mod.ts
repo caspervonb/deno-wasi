@@ -505,7 +505,30 @@ export class Module {
 			},
 
 			fd_filestat_set_times: (fd : number, atim : bigint, mtim : bigint, fst_flags : number) : number => {
-				return ERRNO_NOSYS;
+				const entry = this.fds[fd];
+				if (!entry) {
+					return ERRNO_BADF;
+				}
+
+				if (!entry.path) {
+					return ERRNO_INVAL;
+				}
+
+				if ((fst_flags & FSTFLAGS_ATIM_NOW) == FSTFLAGS_ATIM_NOW) {
+					atim = BigInt(Date.now() * 1e6);
+				}
+
+				if ((fst_flags & FSTFLAGS_MTIM_NOW) == FSTFLAGS_MTIM_NOW) {
+					mtim = BigInt(Date.now() * 1e6);
+				}
+
+				try {
+					Deno.utimeSync(entry.path, Number(atim), Number(mtim));
+				} catch (err) {
+					return errno(err);
+				}
+
+				return ERRNO_SUCCESS;
 			},
 
 			fd_pread: (fd : number, iovs_ptr : number, iovs_len : number, offset : bigint, nread_out : number) : number => {
