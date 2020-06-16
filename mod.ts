@@ -1066,7 +1066,7 @@ export class Module {
 			},
 
 			sched_yield: () : number => {
-				return ERRNO_NOSYS;
+				return ERRNO_SUCCESS;
 			},
 
 			random_get: (buf_ptr : number, buf_len : number) : number => {
