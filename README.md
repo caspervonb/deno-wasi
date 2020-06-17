@@ -47,7 +47,7 @@ This is a work in progress so if a function isn't implemented, hit refresh.
 | `path_rename`             | &check; |                                                                                        |
 | `path_symlink`            | &check; |                                                                                        |
 | `path_unlink_file`        | &check; |                                                                                        |
-| `poll_oneoff`             |         |                                                                                        |
+| `poll_oneoff`             | &check; |                                                                                        |
 | `proc_exit`               | &check; |                                                                                        |
 | `proc_raise`              |         |                                                                                        |
 | `sched_yield`             |         |                                                                                        |
