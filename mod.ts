@@ -798,7 +798,7 @@ export class Module {
 				return ERRNO_SUCCESS;
 			},
 
-			path_filestat_set_times: (fd : number, flags : number, path_ptr : number, path_len : number, atim : number, mtim : number, fst_flags : number) : number => {
+			path_filestat_set_times: (fd : number, flags : number, path_ptr : number, path_len : number, atim : bigint, mtim : bigint, fst_flags : number) : number => {
 				const entry = this.fds[fd];
 				if (!entry) {
 					return ERRNO_BADF;
@@ -813,15 +813,15 @@ export class Module {
 				const path = resolve(entry.path, text.decode(data));
 
 				if ((fst_flags & FSTFLAGS_ATIM_NOW) == FSTFLAGS_ATIM_NOW) {
-					atim = Date.now();
+					atim = BigInt(Date.now()) * BigInt(1e6);
 				}
 
 				if ((fst_flags & FSTFLAGS_MTIM_NOW) == FSTFLAGS_MTIM_NOW) {
-					mtim = Date.now();
+					mtim = BigInt(Date.now()) * BigInt(1e6);
 				}
 
 				try {
-					Deno.utimeSync(path, atim, mtim);
+					Deno.utimeSync(path, Number(atim), Number(mtim));
 				} catch (err) {
 					return errno(err);
 				}
