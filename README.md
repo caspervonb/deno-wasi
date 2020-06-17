@@ -42,7 +42,7 @@ This is a work in progress so if a function isn't implemented, hit refresh.
 | `path_filestat_set_times` | &check; |                                                                                        |
 | `path_link`               | &check; |                                                                                        |
 | `path_open`               | &check; | Opening directories is not portable                                                    |
-| `path_readlink`           |         |                                                                                        |
+| `path_readlink`           | &check; |                                                                                        |
 | `path_remove_directory`   | &check; |                                                                                        |
 | `path_rename`             | &check; |                                                                                        |
 | `path_symlink`            | &check; |                                                                                        |
