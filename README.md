@@ -25,7 +25,7 @@ This is a work in progress so if a function isn't implemented, hit refresh.
 | `fd_fdstat_set_rights`    |         |                                                                                        |
 | `fd_filestat_get`         |         | This is blocking on getting fstat implemented upstream in Deno.                        |
 | `fd_filestat_set_size`    |         | This is blocking on getting ftruncate implemented upstream in Deno.                    |
-| `fd_filestat_set_times`   |         |                                                                                        |
+| `fd_filestat_set_times`   | &check; |                                                                                        |
 | `fd_pread`                | &check; |                                                                                        |
 | `fd_prestat_get`          | &check; |                                                                                        |
 | `fd_prestat_dir_name`     | &check; |                                                                                        |
