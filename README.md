@@ -1,5 +1,7 @@
 # WebAssembly System Interface implementation for Deno
 
+**Note: This module has been merged into Deno, further development will take place in the [Deno repository](https://github.com/denoland/deno)**
+
 This package provides an implementation of the [WebAssembly System
 Interface](https://github.com/webassembly/wasi) for the
 [Deno](https://github.com/denoland/deno) TypeScript runtime.
@@ -40,7 +42,7 @@ This is a work in progress so if a function isn't implemented, hit refresh.
 | `path_create_directory`   | &check; |                                                                                        |
 | `path_filestat_get`       | &check; |                                                                                        |
 | `path_filestat_set_times` | &check; |                                                                                        |
-| `path_link`               | &check; |                                                                                        |
+| `path_link`               | &check; |                                                                                        |7
 | `path_open`               | &check; | Opening directories is not portable                                                    |
 | `path_readlink`           | &check; |                                                                                        |
 | `path_remove_directory`   | &check; |                                                                                        |
@@ -59,6 +61,8 @@ This is a work in progress so if a function isn't implemented, hit refresh.
 ## Example
 
 ```typescript
+	instance.exports._start();
+} else if (module.exports._initialize) {
 import WASI from "https://deno.land/x/wasi/mod.ts";
 
 const wasi = new WASI({
@@ -75,8 +79,6 @@ const instance = await WebAssembly.instantiate(module, {
 wasi.memory = module.exports.memory;
 
 if (module.exports._start) {
-	instance.exports._start();
-} else if (module.exports._initialize) {
 	instance.exports._initialize();
 } else {
 	throw new Error("No entry point found");
